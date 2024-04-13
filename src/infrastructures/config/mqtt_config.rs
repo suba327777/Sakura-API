@@ -1,4 +1,4 @@
-use serde_derive::{Serialize, Deserialize};
+use serde_derive::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
 pub struct MqttConfig {
@@ -10,7 +10,7 @@ impl ::std::default::Default for MqttConfig {
     fn default() -> Self {
         Self {
             host: "localhost".into(),
-            device_id: "backend".into()
+            device_id: "backend".into(),
         }
     }
 }
