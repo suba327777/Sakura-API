@@ -2,6 +2,8 @@ use std::marker::PhantomData;
 
 pub mod account;
 
+pub mod mqtt;
+
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct Id<T> {
     id: i64,
