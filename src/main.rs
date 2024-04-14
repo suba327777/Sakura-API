@@ -7,5 +7,6 @@ mod server;
 mod usecase;
 
 fn main() -> std::io::Result<()> {
-    server::run()
+    server::run();
+    infrastructures::iot::run();
 }
