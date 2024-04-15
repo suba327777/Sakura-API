@@ -6,8 +6,7 @@ mod infrastructures;
 mod server;
 mod usecase;
 
-#[tokio::main]
-async fn main() -> std::io::Result<()> {
-    let _ = server::run();
-    infrastructures::iot::run().await
+fn main() -> std::io::Result<()> {
+    infrastructures::iot::run().expect("MQTT client initialization failed");
+    server::run()
 }
