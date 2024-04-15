@@ -7,7 +7,7 @@ use actix_web::{App, HttpServer};
 pub async fn run() -> std::io::Result<()> {
     HttpServer::new(|| {
         App::new()
-            .app_data(Data::new(RequestContext::new())) // RequestContextを使用する箇所
+            .app_data(Data::new(RequestContext::new()))
             .service(handler::account::post_account)
             .service(handler::account::get_accounts)
             .service(handler::account::get_account)
