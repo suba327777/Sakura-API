@@ -1,0 +1,32 @@
+version: '3.9'
+
+services:
+  db:
+    #mac
+    # platform: linux/amd64
+    image: postgres:15
+    container_name: postgres
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: sakura
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: sakura
+    volumes:
+      - ./docker/db-store:/var/lib/postgresql/data
+  main:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    working_dir: /app
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: db
+
+
+volumes:
+  db-store:
