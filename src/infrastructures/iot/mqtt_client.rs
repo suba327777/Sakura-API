@@ -66,25 +66,18 @@ impl MqttClient {
     }
 
     pub fn subscribe(&mut self, topic: &str, handler: MessageHandler) -> Result<(), mqtt::Error> {
-        block_on(async {
-            self.client
-                .as_mut()
-                .unwrap()
-                .subscribe(topic, 0)
-                .await
-        })
-        .map_err(|err| {
-            eprintln!("Subscription error: {}", err);
-            err
-        })?;
+        block_on(async { self.client.as_mut().unwrap().subscribe(topic, 0).await }).map_err(
+            |err| {
+                eprintln!("Subscription error: {}", err);
+                err
+            },
+        )?;
 
-        self.handlers
-            .insert(topic.to_string(), handler);
+        self.handlers.insert(topic.to_string(), handler);
         Ok(())
     }
 
     async fn start_mqtt_check(&mut self) {
-
         match self.client {
             Some(ref mut client) => {
                 let mut strm = client.get_stream(25);
@@ -111,12 +104,10 @@ impl MqttClient {
                         }
                     }
                 }
-            },
+            }
             None => {
                 eprintln!("Error: MQTT client is not initialized.");
             }
         }
-
-
     }
 }
