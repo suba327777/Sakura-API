@@ -1,13 +1,9 @@
-use crate::domain;
-use crate::infrastructures::config;
-use crate::infrastructures::config::mqtt_config::MqttConfig;
-use crate::infrastructures::repository::account::AccountRepositoryImpl;
 use futures::{executor::block_on, stream::StreamExt};
-use paho_mqtt::{self as mqtt, Message, Topic, MQTT_VERSION_5};
+use paho_mqtt::{self as mqtt, Message, MQTT_VERSION_5};
 use std::collections::HashMap;
+use std::env;
 use std::sync::Arc;
 use std::time::Duration;
-use std::{env, process};
 
 type MessageHandler = Arc<dyn Fn(&Message) + Send + Sync>;
 
@@ -15,34 +11,35 @@ pub trait MessageListener: Fn(Message) + Send + Sync + 'static {}
 impl<T> MessageListener for T where T: Fn(Message) + Send + Sync + 'static {}
 
 pub struct MqttClient {
-    cfg: MqttConfig,
+    device_id: String,
+    address: String,
     client: Option<paho_mqtt::AsyncClient>,
-    handlers: Option<HashMap<String, MessageHandler>>,
+    handlers: HashMap<String, MessageHandler>,
 }
 
 impl MqttClient {
-    pub fn new() -> Result<Self, confy::ConfyError> {
-        let cfg = confy::load::<MqttConfig>("Sakura-API", None)?;
-        Ok(MqttClient {
-            cfg,
+    pub fn new(device_id: String, address: String) -> MqttClient {
+        MqttClient {
+            device_id,
+            address,
             client: None,
-            handlers: None,
-        })
+            handlers: HashMap::new(),
+        }
     }
 
-    pub async fn init_mqtt(&mut self) -> Result<(), mqtt::Error> {
+    pub async fn init_mqtt(&mut self) -> Result<(), std::io::Error> {
         let host = env::args()
             .nth(1)
-            .unwrap_or_else(|| "mqtt://".to_string() + &self.cfg.address);
+            .unwrap_or_else(|| "mqtt://".to_string() + &self.address);
 
         println!("Connecting to the MQTT server at '{}'...", host);
 
         let create_opts = mqtt::CreateOptionsBuilder::new()
             .server_uri(host)
-            .client_id(&self.cfg.device_id)
+            .client_id(&self.device_id)
             .finalize();
 
-        let mut cli = mqtt::AsyncClient::new(create_opts).unwrap_or_else(|e| {
+        let cli = mqtt::AsyncClient::new(create_opts).unwrap_or_else(|e| {
             eprintln!("Error creating the client: {:?}", e);
             std::process::exit(1);
         });
@@ -73,7 +70,7 @@ impl MqttClient {
             self.client
                 .as_mut()
                 .unwrap()
-                .subscribe_with_options(topic, 0, &None, None)
+                .subscribe(topic, 0)
                 .await
         })
         .map_err(|err| {
@@ -82,35 +79,44 @@ impl MqttClient {
         })?;
 
         self.handlers
-            .get_or_insert_with(HashMap::new)
             .insert(topic.to_string(), handler);
         Ok(())
     }
 
     async fn start_mqtt_check(&mut self) {
-        let mut strm = self.client.get_stream(25);
 
-        println!("Waiting for messages...");
-        while let Some(msg_opt) = strm.next().await {
-            if let Some(msg) = msg_opt {
-                if msg.retained() {
-                    print!("(R) ");
+        match self.client {
+            Some(ref mut client) => {
+                let mut strm = client.get_stream(25);
+
+                println!("Waiting for messages...");
+                while let Some(msg_opt) = strm.next().await {
+                    if let Some(msg) = msg_opt {
+                        if msg.retained() {
+                            print!("(R) ");
+                        }
+                        println!("{}", msg);
+                        // ここで対応するハンドラーを呼び出す
+                        let handlers = &self.handlers;
+                        if let Some(handler) = handlers.get(msg.topic()) {
+                            handler(&msg);
+                        }
+                    } else {
+                        // A "None" means we were disconnected. Try to reconnect...
+                        println!("Lost connection. Attempting reconnect.");
+                        while let Err(err) = client.reconnect().await {
+                            println!("Error reconnecting: {}", err);
+                            // For tokio use: tokio::time::delay_for()
+                            async_std::task::sleep(Duration::from_millis(1000)).await;
+                        }
+                    }
                 }
-                println!("{}", msg);
-                // ここで対応するハンドラーを呼び出す
-                let handlers = self.handlers.lock().unwrap();
-                if let Some(handler) = handlers.get(msg.topic()) {
-                    handler(msg);
-                }
-            } else {
-                // A "None" means we were disconnected. Try to reconnect...
-                println!("Lost connection. Attempting reconnect.");
-                while let Err(err) = self.client.reconnect().await {
-                    println!("Error reconnecting: {}", err);
-                    // For tokio use: tokio::time::delay_for()
-                    async_std::task::sleep(Duration::from_millis(1000)).await;
-                }
+            },
+            None => {
+                eprintln!("Error: MQTT client is not initialized.");
             }
         }
+
+
     }
 }

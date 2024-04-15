@@ -1,23 +1,18 @@
 use crate::infrastructures::iot::mqtt_client::MqttClient;
-use paho_mqtt::Message;
 use std::sync::Arc;
+use paho_mqtt::Message;
+use crate::infrastructures::config::mqtt_config::MqttConfig;
 
 pub mod mqtt_client;
 
-use futures::{executor::block_on, stream::StreamExt, TryStreamExt};
+pub async fn run() -> std::io::Result<()> {
+    let cfg = confy::load::<MqttConfig>("Sakura-API", None)
+        .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e.to_string()))?;
+    let mut client = MqttClient::new(cfg.device_id, cfg.address);
+    client.init_mqtt().await?;
+    subscribe_topics(client);
+    Ok(())
 
-pub fn run() {
-    let mut client = MqttClient::new().unwrap();
-    block_on(async {
-        let result = client.init_mqtt().await;
-        if !result.is_err() {
-            subscribe_topics(client);
-        }
-    })
-    .map_err(|err| {
-        eprintln!("initialized error: {}", err);
-        err
-    })?;
 }
 
 // TODO: configから読み取る

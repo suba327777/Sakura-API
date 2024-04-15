@@ -6,7 +6,8 @@ mod infrastructures;
 mod server;
 mod usecase;
 
-fn main() -> std::io::Result<()> {
-    server::run();
-    infrastructures::iot::run();
+#[tokio::main]
+async fn main() -> std::io::Result<()> {
+    let _ = server::run();
+    infrastructures::iot::run().await
 }
