@@ -7,5 +7,5 @@ mod server;
 mod usecase;
 
 fn main() -> std::io::Result<()> {
-    server::run()
+    server::router::run()
 }

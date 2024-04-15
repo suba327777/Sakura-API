@@ -1,7 +1,7 @@
 use super::super::request::account::AccountRequest;
 use super::super::response::account::{AccountDto, AccountListResopnse};
 use crate::domain::object::account::AccountId;
-use crate::server::RequestContext;
+use crate::server::connection::RequestContext;
 use crate::usecase;
 use actix_web::{delete, get, post, web, web::Json, HttpResponse, Responder};
 
