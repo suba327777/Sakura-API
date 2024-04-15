@@ -5,7 +5,7 @@ WORKDIR /app
 # 前提インストール
 RUN dpkg --add-architecture armhf
 RUN apt update && apt upgrade -y
-RUN apt install -y libpq-dev
+RUN apt install -y libpq-dev cmake
 
 # ソースコードのコピー
 COPY . .
