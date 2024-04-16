@@ -12,7 +12,9 @@ async fn post_account(
 ) -> impl Responder {
     match usecase::account::post_account(&mut data.account_repository(), &request.of()) {
         Ok(_) => HttpResponse::NoContent().finish(),
-        Err(_) => HttpResponse::InternalServerError().json(""),
+        Err(err) => {
+            HttpResponse::InternalServerError().json(format!("Internal Server Error {}", err))
+        }
     }
 }
 
@@ -20,7 +22,9 @@ async fn post_account(
 async fn get_accounts(data: web::Data<RequestContext>) -> impl Responder {
     match usecase::account::get_account_list(&mut data.account_repository()) {
         Ok(accounts) => HttpResponse::Ok().json(AccountListResopnse::new(accounts)),
-        Err(_) => HttpResponse::InternalServerError().json(""),
+        Err(err) => {
+            HttpResponse::InternalServerError().json(format!("Internal Server Error {}", err))
+        }
     }
 }
 
@@ -32,7 +36,9 @@ async fn get_account(
     let account_id = AccountId::new(path_params.into_inner().0);
     match usecase::account::get_account(&mut data.account_repository(), &account_id) {
         Ok(account) => HttpResponse::Ok().json(AccountDto::new(&account)),
-        Err(_) => HttpResponse::InternalServerError().json(""),
+        Err(err) => {
+            HttpResponse::InternalServerError().json(format!("Internal Server Error {}", err))
+        }
     }
 }
 
@@ -44,6 +50,8 @@ async fn delete_account(
     let account_id = AccountId::new(path_params.into_inner().0);
     match usecase::account::delete_account(&mut data.account_repository(), &account_id) {
         Ok(_) => HttpResponse::NoContent().finish(),
-        Err(_) => HttpResponse::InternalServerError().json(""),
+        Err(err) => {
+            HttpResponse::InternalServerError().json(format!("Internal Server Error {}", err))
+        }
     }
 }
