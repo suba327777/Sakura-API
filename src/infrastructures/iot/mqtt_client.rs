@@ -1,10 +1,10 @@
+use crate::infrastructures::config::mqtt_config::MqttConfig;
 use futures::{executor::block_on, stream::StreamExt};
 use paho_mqtt::{self as mqtt, Message, MQTT_VERSION_5};
 use std::collections::HashMap;
 use std::env;
 use std::sync::Arc;
 use std::time::Duration;
-use crate::infrastructures::config::mqtt_config::MqttConfig;
 
 type MessageHandler = Arc<dyn Fn(&Message) + Send + Sync>;
 
