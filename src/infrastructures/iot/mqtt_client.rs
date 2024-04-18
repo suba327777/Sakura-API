@@ -4,11 +4,25 @@ use std::collections::HashMap;
 use std::env;
 use std::sync::Arc;
 use std::time::Duration;
+use crate::infrastructures::config::mqtt_config::MqttConfig;
 
 type MessageHandler = Arc<dyn Fn(&Message) + Send + Sync>;
 
 pub trait MessageListener: Fn(Message) + Send + Sync + 'static {}
 impl<T> MessageListener for T where T: Fn(Message) + Send + Sync + 'static {}
+
+pub fn run() -> std::io::Result<()> {
+    let rt = tokio::runtime::Runtime::new()?; // 新しいランタイムを作成
+
+    rt.block_on(async {
+        let cfg = confy::load::<MqttConfig>("Sakura-API", None)
+            .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e.to_string()))?;
+        let mut client = MqttClient::new(cfg.device_id, cfg.address);
+        client.init_mqtt().await?;
+        subscribe_topics(client);
+        Ok(())
+    })
+}
 
 pub struct MqttClient {
     device_id: String,
@@ -110,4 +124,16 @@ impl MqttClient {
             }
         }
     }
+}
+
+// TODO: configから読み取る
+fn subscribe_topics(mut mqtt_client: MqttClient) {
+    mqtt_client
+        .subscribe(
+            "hoge",
+            Arc::new(|msg: &Message| {
+                println!("Received message on {}: {}", msg.topic(), msg);
+            }),
+        )
+        .unwrap();
 }

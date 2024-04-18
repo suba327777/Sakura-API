@@ -7,6 +7,6 @@ mod server;
 mod usecase;
 
 fn main() -> std::io::Result<()> {
-    infrastructures::iot::run().expect("MQTT client initialization failed");
+    infrastructures::iot::mqtt_client::run().expect("MQTT client initialization failed");
     server::router::run()
 }
