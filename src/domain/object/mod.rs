@@ -1,5 +1,9 @@
 use std::marker::PhantomData;
 
+mod card;
+mod door_state;
+mod door_switch_state;
+mod key_state;
 pub mod account;
 
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
