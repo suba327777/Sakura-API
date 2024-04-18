@@ -9,7 +9,7 @@ pub struct MqttConfig {
 impl ::std::default::Default for MqttConfig {
     fn default() -> Self {
         Self {
-            address: "localhost:8888".into(),
+            address: "mqtt:1883".into(),
             device_id: "backend".into(),
         }
     }
