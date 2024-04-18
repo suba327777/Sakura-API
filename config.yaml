@@ -1,0 +1,2 @@
+address: "mqtt:1883"
+device_id: "Sakura-API-test"
