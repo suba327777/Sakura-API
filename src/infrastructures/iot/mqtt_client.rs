@@ -1,4 +1,3 @@
-use crate::infrastructures::config::mqtt_config::MqttConfig;
 use futures::{executor::block_on, stream::StreamExt};
 use paho_mqtt::{self as mqtt, Message, MQTT_VERSION_5};
 use std::collections::HashMap;
@@ -10,19 +9,6 @@ type MessageHandler = Arc<dyn Fn(&Message) + Send + Sync>;
 
 pub trait MessageListener: Fn(Message) + Send + Sync + 'static {}
 impl<T> MessageListener for T where T: Fn(Message) + Send + Sync + 'static {}
-
-pub fn run() -> std::io::Result<()> {
-    let rt = tokio::runtime::Runtime::new()?; // 新しいランタイムを作成
-
-    rt.block_on(async {
-        let cfg = confy::load::<MqttConfig>("Sakura-API", None)
-            .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e.to_string()))?;
-        let mut client = MqttClient::new(cfg.device_id, cfg.address);
-        client.init_mqtt().await?;
-        subscribe_topics(client);
-        Ok(())
-    })
-}
 
 pub struct MqttClient {
     device_id: String,
@@ -75,7 +61,6 @@ impl MqttClient {
 
         self.client = Some(cli);
 
-        self.start_mqtt_check().await;
         Ok(())
     }
 
@@ -91,7 +76,7 @@ impl MqttClient {
         Ok(())
     }
 
-    async fn start_mqtt_check(&mut self) {
+    pub async fn start_mqtt_check(&mut self) {
         match self.client {
             Some(ref mut client) => {
                 let mut strm = client.get_stream(25);
@@ -124,16 +109,4 @@ impl MqttClient {
             }
         }
     }
-}
-
-// TODO: configから読み取る
-fn subscribe_topics(mut mqtt_client: MqttClient) {
-    mqtt_client
-        .subscribe(
-            "hoge",
-            Arc::new(|msg: &Message| {
-                println!("Received message on {}: {}", msg.topic(), msg);
-            }),
-        )
-        .unwrap();
 }
