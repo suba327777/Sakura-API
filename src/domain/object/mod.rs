@@ -1,10 +1,7 @@
 use std::marker::PhantomData;
 
 pub mod account;
-mod card;
-mod door_state;
-mod door_switch_state;
-mod key_state;
+mod mqtt;
 
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct Id<T> {
