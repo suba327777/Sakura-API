@@ -45,9 +45,9 @@ pub fn subscribe_topics(mqtt_client: &mut MqttClient, cfg: MqttConfig) {
                 };
                 let json_str = serde_json::to_string(&open_state).unwrap();
                 println!("Received message on {}", msg.topic());
-                println!(": id        : {}", open_state.device_id);
-                println!(": open      : {}", open_state.open);
-                println!(": timestamp : {}", open_state.timestamp);
+                println!(": id        : {:?}", card.id);
+                println!(": device_id : {}", card.device_id);
+                println!(": timestamp : {}", card.timestamp);
                 // TODO: publish mqtt server.
                 // mqtt_client.publish(&cfg.key_state_publish_path, &json_str);
             }),
