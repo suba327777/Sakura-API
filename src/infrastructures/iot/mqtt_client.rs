@@ -76,6 +76,17 @@ impl MqttClient {
         Ok(())
     }
 
+    pub fn publish(&mut self, topic: &str, message: &str) -> Result<(), mqtt::Error> {
+        let mqtt_data = Message::new(topic, message.clone(), 0);
+        block_on(async { self.client.as_mut().unwrap().publish(mqtt_data).await }).map_err(
+            |err| {
+                eprintln!("publish error: {}", err);
+                err
+            },
+        )?;
+        Ok(())
+    }
+
     pub async fn start_mqtt_check(&mut self) {
         match self.client {
             Some(ref mut client) => {
