@@ -6,7 +6,6 @@ use paho_mqtt::Message;
 use std::sync::Arc;
 
 pub async fn run(cfg: MqttConfig) -> std::io::Result<()> {
-    let cfg = Arc::new(cfg);
     println!("read cfg");
     let mut client = MqttClient::new(cfg.device_id.to_string(), cfg.address.to_string());
     println!("start mqtt");
@@ -18,9 +17,10 @@ pub async fn run(cfg: MqttConfig) -> std::io::Result<()> {
 }
 
 // TODO: configから読み取る
-pub fn subscribe_topics(mqtt_client: &mut MqttClient, cfg_src: Arc<MqttConfig>) {
-    // test message
-    let  cfg = cfg_src.clone();
+pub fn subscribe_topics(mqtt_client: &mut MqttClient, cfg: MqttConfig) {
+    let cfg_clone = cfg.clone();
+    let device_id = cfg.device_id.clone();  // cfg.device_id をクローンして String を作成
+
     mqtt_client
         .subscribe(
             "test/test_message",
@@ -32,23 +32,24 @@ pub fn subscribe_topics(mqtt_client: &mut MqttClient, cfg_src: Arc<MqttConfig>) 
 
     mqtt_client
         .subscribe(
-            &cfg.card_receive_path,
-            Arc::new(|msg: &Message| {
-                let card: MqttCard = serde_json::from_str(&*msg.payload_str()).unwrap();
+            &cfg_clone.card_receive_path,
+            Arc::new(move |msg: &Message| {
+                let card: MqttCard = serde_json::from_str(&msg.payload_str()).unwrap();
                 // TODO: カードを受け取れるので、これを照合して開ける
                 // TODO: またはカード登録処理のために別でフックする。
-                let is_open = true; // TODO: データベースに問い合わせて、開けるかどうかを返す
+                let is_open = true;  // 本来はデータベース等でチェック
                 let open_state = DoorState {
-                    device_id: (&cfg.device_id).to_string(),
+                    device_id: device_id.clone(),
                     open: is_open,
                     timestamp: chrono::offset::Local::now(),
                 };
                 let json_str = serde_json::to_string(&open_state).unwrap();
-                // mqtt_client.publish(&cfg.key_state_publish_path, &json_str);
                 println!("Received message on {}", msg.topic());
                 println!(": id        : {}", open_state.device_id);
                 println!(": open      : {}", open_state.open);
                 println!(": timestamp : {}", open_state.timestamp);
+                // TODO: publish mqtt server.
+                // mqtt_client.publish(&cfg.key_state_publish_path, &json_str);
             }),
         )
         .unwrap();
