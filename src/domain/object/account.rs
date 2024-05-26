@@ -1,5 +1,5 @@
-use super::super::super::utils::time::create_time;
 use super::Id;
+use crate::utils::time::create_time;
 use chrono::NaiveDateTime;
 
 pub type AccountId = Id<Account>;
