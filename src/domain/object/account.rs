@@ -1,5 +1,6 @@
+use super::super::super::utils::time::create_time;
 use super::Id;
-use chrono::{Local, NaiveDateTime};
+use chrono::NaiveDateTime;
 
 pub type AccountId = Id<Account>;
 
@@ -22,11 +23,6 @@ impl Account {
             created_at: create_time(),
         }
     }
-}
-
-fn create_time() -> NaiveDateTime {
-    let local_now = Local::now();
-    local_now.naive_local()
 }
 
 #[cfg(test)]
