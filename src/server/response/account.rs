@@ -20,8 +20,7 @@ pub struct AccountDto {
     id: i64,
     username: String,
     grade: i32,
-    card_type: String,
-    card_id: Vec<u8>,
+    expiration_date: NaiveDateTime,
     created_at: NaiveDateTime,
 }
 
@@ -31,8 +30,7 @@ impl AccountDto {
             id: model.id.get(),
             username: model.username.to_owned(),
             grade: model.grade.to_owned(),
-            card_type: model.card_type.to_owned(),
-            card_id: model.card_id.to_owned(),
+            expiration_date: model.expiration_date.to_owned(),
             created_at: model.created_at.to_owned(),
         }
     }
