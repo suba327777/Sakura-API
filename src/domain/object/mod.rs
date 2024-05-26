@@ -1,9 +1,10 @@
+use serde::{Deserialize, Serialize};
 use std::marker::PhantomData;
 
 pub mod account;
 pub mod card;
 
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
 pub struct Id<T> {
     id: i64,
     _phantom: PhantomData<T>,
