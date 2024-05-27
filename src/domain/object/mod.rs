@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 use std::marker::PhantomData;
 
 pub mod account;
+mod mqtt;
 pub mod card;
 
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
