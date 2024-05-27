@@ -27,4 +27,11 @@ impl RequestContext {
             pool: Box::new(self.pool.to_owned()),
         }
     }
+    pub fn card_repository(&self) -> impl CardRepository {
+        use  crate::infrastructures::repository::card::CardRepositoryImpl
+
+        CardRepositoryImpl {
+            pool:Box::new(self.pool.to_owned()),
+        }
+    }
 }
