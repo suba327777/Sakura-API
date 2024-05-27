@@ -23,6 +23,7 @@ pub struct AccountEntity {
 #[derive(Debug, Insertable)]
 #[table_name = "card"]
 pub struct NewCardEntity {
+    pub account_id: i64,
     pub card_name: String,
     pub card_number: Vec<u8>,
     pub created_at: NaiveDateTime,
