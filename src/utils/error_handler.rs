@@ -30,8 +30,8 @@ impl From<DieselError> for CustomError {
     fn from(error: DieselError) -> CustomError {
         match error {
             DieselError::DatabaseError(_, err) => CustomError::new(409, err.message().to_string()),
-            DieselError::NotFound => CustomError::new(404, "The record not found".to_string()),
-            err => CustomError::new(500, format!("Unknown Diesel error: {}", err)),
+            DieselError::NotFound => CustomError::new(404, "the record not found".to_string()),
+            err => CustomError::new(500, format!("unknown diesel error: {}", err)),
         }
     }
 }
@@ -40,12 +40,12 @@ impl ResponseError for CustomError {
     fn error_response(&self) -> HttpResponse {
         let status_code = match StatusCode::from_u16(self.error_status_code) {
             Ok(status_code) => status_code,
-            Err(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            Err(_) => StatusCode::internal_server_error,
         };
 
         let error_message = match status_code.as_u16() < 500 {
             true => self.error_message.clone(),
-            false => "Internal server error".to_string(),
+            false => "internal server error".to_string(),
         };
 
         HttpResponse::build(status_code).json(json!({ "message": error_message }))
