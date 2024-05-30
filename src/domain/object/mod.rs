@@ -1,11 +1,11 @@
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
 use std::marker::PhantomData;
 
 pub mod account;
-mod mqtt;
 pub mod card;
+mod mqtt;
 
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct Id<T> {
     id: i64,
     _phantom: PhantomData<T>,
@@ -26,5 +26,15 @@ impl<T> Id<T> {
 impl<T> Default for Id<T> {
     fn default() -> Self {
         Id::new(0)
+    }
+}
+
+impl<'de, T> Deserialize<'de> for Id<T> {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let id = i64::deserialize(deserializer)?;
+        Ok(Id::new(id))
     }
 }
