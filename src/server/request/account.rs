@@ -11,7 +11,7 @@ pub struct AccountRequest {
 
 impl AccountRequest {
     pub fn of(&self) -> Account {
-        Account::create(
+        Account::new(
             self.username.to_owned(),
             self.grade.to_owned(),
             self.expiration_date.to_owned(),

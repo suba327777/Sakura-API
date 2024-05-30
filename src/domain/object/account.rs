@@ -14,7 +14,7 @@ pub struct Account {
 }
 
 impl Account {
-    pub fn create(username: String, grade: i32, expiration_date: NaiveDateTime) -> Self {
+    pub fn new(username: String, grade: i32, expiration_date: NaiveDateTime) -> Self {
         Self {
             id: Default::default(),
             username,
@@ -37,7 +37,7 @@ mod tests {
         let current_time = create_time();
         let expiration_date = current_time + Duration::hours(1);
 
-        let account = Account::create(username.clone(), grade, expiration_date);
+        let account = Account::new(username.clone(), grade, expiration_date);
 
         assert_eq!(account.id.get(), 0);
         assert_eq!(account.username, username);
