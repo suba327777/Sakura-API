@@ -14,7 +14,7 @@ pub struct Card {
 }
 
 impl Card {
-    pub fn create(account_id: AccountId, card_name: String, card_number: Vec<u8>) -> Self {
+    pub fn new(account_id: AccountId, card_name: String, card_number: Vec<u8>) -> Self {
         Self {
             id: Default::default(),
             account_id,
@@ -35,7 +35,7 @@ mod tests {
         let card_name = "suica".to_string();
         let card_number = [1, 16, 3, 16, 197, 20, 106, 38].to_vec();
 
-        let card = Card::create(account_id, card_name, card_number);
+        let card = Card::new(account_id, card_name, card_number);
 
         assert_eq!(card.account_id.get(), 1);
         assert_eq!(card.card_name, "suica");

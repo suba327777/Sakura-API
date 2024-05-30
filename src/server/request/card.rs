@@ -11,7 +11,7 @@ pub struct CardRequest {
 
 impl CardRequest {
     pub fn of(&self) -> Card {
-        Card::create(
+        Card::new(
             self.account_id.to_owned(),
             self.card_name.to_owned(),
             self.card_number.to_owned(),
