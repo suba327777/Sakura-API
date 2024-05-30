@@ -21,7 +21,7 @@ pub fn delete_account(
     repository: &mut impl AccountRepository,
     account_id: &AccountId,
 ) -> Result<()> {
-    let account = repository.find_by_id(account_id).unwrap();
+    let account = repository.find_by_id(account_id)?;
     repository.delete(&account)
 }
 
