@@ -1,8 +1,8 @@
 use crate::domain::object::account::AccountId;
 use crate::domain::object::card::Card;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 
-#[derive(Debug, Default, Deserialize, Serialize)]
+#[derive(Debug, Default, Deserialize)]
 pub struct CardRequest {
     account_id: AccountId,
     card_name: String,

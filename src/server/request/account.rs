@@ -1,8 +1,8 @@
 use crate::domain::object::account::Account;
 use chrono::NaiveDateTime;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 
-#[derive(Debug, Default, Deserialize, Serialize)]
+#[derive(Debug, Default, Deserialize)]
 pub struct AccountRequest {
     username: String,
     grade: i32,
