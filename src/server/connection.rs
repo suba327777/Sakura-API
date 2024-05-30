@@ -1,4 +1,7 @@
 use crate::domain::repository::account::AccountRepository;
+use crate::domain::repository::card::CardRepository;
+use crate::infrastructures::repository::account::AccountRepositoryImpl;
+use crate::infrastructures::repository::card::CardRepositoryImpl;
 use diesel::prelude::*;
 use diesel::r2d2::{ConnectionManager, Pool};
 use dotenv::dotenv;
@@ -21,17 +24,13 @@ impl RequestContext {
     }
 
     pub fn account_repository(&self) -> impl AccountRepository {
-        use crate::infrastructures::repository::account::AccountRepositoryImpl;
-
         AccountRepositoryImpl {
             pool: Box::new(self.pool.to_owned()),
         }
     }
     pub fn card_repository(&self) -> impl CardRepository {
-        use  crate::infrastructures::repository::card::CardRepositoryImpl
-
         CardRepositoryImpl {
-            pool:Box::new(self.pool.to_owned()),
+            pool: Box::new(self.pool.to_owned()),
         }
     }
 }
