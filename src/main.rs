@@ -6,6 +6,7 @@ use std::thread;
 mod domain;
 mod infrastructures;
 mod server;
+mod tests;
 mod usecase;
 mod utils;
 
