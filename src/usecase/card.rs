@@ -16,3 +16,52 @@ pub fn post_card(
         Err(err) => Err(anyhow::anyhow!("Failed to find account: {}", err)),
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::domain::object::{
+        account::{Account, AccountId},
+        card::{Card, CardId},
+    };
+    use crate::tests::{
+        mock_account_repository::MockAccountRepository, mock_card_repository::MockCardRepository,
+    };
+    use crate::usecase::account::*;
+    use chrono::{Duration, Local};
+    use std::cell::RefCell;
+    use std::collections::HashMap;
+
+    #[test]
+    fn success_post_card() {
+        let mut account_repository = MockAccountRepository {
+            pool: RefCell::new(HashMap::new()),
+        };
+
+        let mut card_repository = MockCardRepository {
+            pool: RefCell::new(HashMap::new()),
+        };
+
+        let test_account = Account {
+            id: AccountId::new(1),
+            username: "test_user".to_string(),
+            grade: 4,
+            expiration_date: Local::now().naive_local() + Duration::hours(1),
+            created_at: Local::now().naive_local(),
+        };
+
+        let test_card = Card {
+            id: CardId::new(1),
+            account_id: AccountId::new(1),
+            card_name: "suica".to_string(),
+            card_number: [1, 16, 3, 16, 197, 20, 106, 38].to_vec(),
+            created_at: Local::now().naive_local(),
+        };
+
+        let _ = post_account(&mut account_repository, &test_account);
+
+        let result = post_card(&mut card_repository, &mut account_repository, &test_card);
+
+        assert!(result.is_ok());
+    }
+}
