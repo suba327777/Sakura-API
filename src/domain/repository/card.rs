@@ -6,4 +6,5 @@ use anyhow;
 pub trait CardRepository {
     fn insert(&self, card: &Card) -> anyhow::Result<()>;
     fn list(&self, account_id: &AccountId) -> anyhow::Result<Vec<Card>>;
+    fn find_by_id(&self, card_id: &CardId, account_id: &AccountId) -> anyhow::Result<Card>;
 }

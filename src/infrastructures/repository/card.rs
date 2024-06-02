@@ -1,5 +1,5 @@
 use super::super::database::models::{CardEntity, NewCardEntity};
-use super::super::database::schema::card::dsl;
+use super::super::database::schema::card::{dsl, id};
 use crate::domain::object::account::AccountId;
 use crate::domain::object::card::{Card, CardId};
 use crate::domain::repository::card::CardRepository;
@@ -76,5 +76,15 @@ impl CardRepository for CardRepositoryImpl {
         let results: Vec<CardEntity> = query.limit(20).load(&mut conn)?;
 
         Ok(results.into_iter().map(|e| e.of()).collect())
+    }
+
+    fn find_by_id(&self, card_id: &CardId, account_id: &AccountId) -> anyhow::Result<Card> {
+        let mut conn = self.pool.get()?;
+        let entity: CardEntity = dsl::card
+            .filter(id.eq(card_id.get()))
+            .filter(dsl::account_id.eq(account_id.get()))
+            .get_result(&mut conn)?;
+
+        Ok(entity.of())
     }
 }

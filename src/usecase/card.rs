@@ -34,6 +34,21 @@ pub fn get_card_list(
     }
 }
 
+pub fn get_card(
+    card_repository: &mut impl CardRepository,
+    account_repository: &mut impl AccountRepository,
+    card_id: &CardId,
+    account_id: &AccountId,
+) -> anyhow::Result<Card> {
+    match account_repository.find_by_id(account_id) {
+        Ok(_) => {
+            let card = card_repository.find_by_id(card_id, account_id)?;
+            Ok(card)
+        }
+        Err(err) => Err(anyhow::anyhow!("Failed to find account: {}", err)),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
