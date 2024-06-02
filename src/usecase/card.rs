@@ -81,4 +81,54 @@ mod tests {
 
         assert!(result.is_ok());
     }
+
+    #[test]
+    fn success_get_cards() {
+        let mut account_repository = MockAccountRepository {
+            pool: RefCell::new(HashMap::new()),
+        };
+
+        let mut card_repository = MockCardRepository {
+            pool: RefCell::new(HashMap::new()),
+        };
+
+        let test_account = Account {
+            id: AccountId::new(1),
+            username: "test_user".to_string(),
+            grade: 4,
+            expiration_date: Local::now().naive_local() + Duration::hours(1),
+            created_at: Local::now().naive_local(),
+        };
+
+        let test_card = Card {
+            id: CardId::new(1),
+            account_id: AccountId::new(1),
+            card_name: "suica".to_string(),
+            card_number: [1, 16, 3, 16, 197, 20, 106, 38].to_vec(),
+            created_at: Local::now().naive_local(),
+        };
+
+        let test_card2 = Card {
+            id: CardId::new(2),
+            account_id: AccountId::new(1),
+            card_name: "suica".to_string(),
+            card_number: [1, 16, 3, 17, 200, 20, 100, 20].to_vec(),
+            created_at: Local::now().naive_local(),
+        };
+
+        let _ = account_repository.insert(&test_account);
+
+        let _ = card_repository.insert(&test_card);
+        let _ = card_repository.insert(&test_card2);
+
+        let result = get_card_list(
+            &mut card_repository,
+            &mut account_repository,
+            &test_card.account_id,
+        );
+        println!("{:?}", card_repository.pool.borrow());
+
+        let cards = result.unwrap();
+        assert_eq!(cards.len(), 2);
+    }
 }
