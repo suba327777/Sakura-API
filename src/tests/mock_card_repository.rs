@@ -33,4 +33,16 @@ impl CardRepository for MockCardRepository {
 
         Ok(cards)
     }
+
+    fn find_by_id(&self, card_id: &CardId, account_id: &AccountId) -> anyhow::Result<Card> {
+        match self
+            .pool
+            .borrow()
+            .get(&card_id.get())
+            .filter(|card| card.account_id == *account_id)
+        {
+            Some(card) => Ok(card.clone()),
+            None => Err(anyhow::anyhow!("Card not found")),
+        }
+    }
 }

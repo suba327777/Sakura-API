@@ -141,9 +141,54 @@ mod tests {
             &mut account_repository,
             &test_card.account_id,
         );
-        println!("{:?}", card_repository.pool.borrow());
 
         let cards = result.unwrap();
         assert_eq!(cards.len(), 2);
+    }
+
+    #[test]
+    fn success_get_card() {
+        let mut account_repository = MockAccountRepository {
+            pool: RefCell::new(HashMap::new()),
+        };
+
+        let mut card_repository = MockCardRepository {
+            pool: RefCell::new(HashMap::new()),
+        };
+
+        let test_account = Account {
+            id: AccountId::new(1),
+            username: "test_user".to_string(),
+            grade: 4,
+            expiration_date: Local::now().naive_local() + Duration::hours(1),
+            created_at: Local::now().naive_local(),
+        };
+
+        let test_card = Card {
+            id: CardId::new(1),
+            account_id: AccountId::new(1),
+            card_name: "suica".to_string(),
+            card_number: [1, 16, 3, 16, 197, 20, 106, 38].to_vec(),
+            created_at: Local::now().naive_local(),
+        };
+        let _ = account_repository.insert(&test_account);
+        let _ = card_repository.insert(&test_card);
+
+        let result = get_card(
+            &mut card_repository,
+            &mut account_repository,
+            &test_card.id,
+            &test_account.id,
+        );
+
+        assert!(result.is_ok());
+
+        let retrieved_card = result.unwrap();
+
+        assert_eq!(retrieved_card.id.get(), test_card.id.get());
+        assert_eq!(retrieved_card.account_id, test_card.account_id);
+        assert_eq!(retrieved_card.card_name, test_card.card_name);
+        assert_eq!(retrieved_card.card_number, test_card.card_number);
+        assert_eq!(retrieved_card.created_at, test_card.created_at);
     }
 }
