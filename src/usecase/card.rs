@@ -1,7 +1,10 @@
-use crate::domain::object::card::Card;
-use crate::domain::object::card::CardId;
+use crate::domain::object::{
+    account::AccountId,
+    card::{Card, CardId},
+};
 use crate::domain::repository::{account::AccountRepository, card::CardRepository};
 use anyhow;
+
 pub fn post_card(
     card_repository: &mut impl CardRepository,
     account_repository: &mut impl AccountRepository,
@@ -12,6 +15,20 @@ pub fn post_card(
         Ok(_) => {
             card_repository.insert(card)?;
             Ok(())
+        }
+        Err(err) => Err(anyhow::anyhow!("Failed to find account: {}", err)),
+    }
+}
+
+pub fn get_card_list(
+    card_repository: &mut impl CardRepository,
+    account_repository: &mut impl AccountRepository,
+    account_id: &AccountId,
+) -> anyhow::Result<Vec<Card>> {
+    match account_repository.find_by_id(account_id) {
+        Ok(_) => {
+            let cards = card_repository.list(account_id)?;
+            Ok(cards)
         }
         Err(err) => Err(anyhow::anyhow!("Failed to find account: {}", err)),
     }

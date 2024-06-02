@@ -67,4 +67,14 @@ impl CardRepository for CardRepositoryImpl {
 
         Ok(())
     }
+
+    fn list(&self, account_id: &AccountId) -> anyhow::Result<Vec<Card>> {
+        let query = dsl::card
+            .filter(dsl::account_id.eq(account_id.get()))
+            .into_boxed();
+        let mut conn = self.pool.get()?;
+        let results: Vec<CardEntity> = query.limit(20).load(&mut conn)?;
+
+        Ok(results.into_iter().map(|e| e.of()).collect())
+    }
 }
