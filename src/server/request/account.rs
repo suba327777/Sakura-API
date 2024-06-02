@@ -9,6 +9,11 @@ pub struct AccountRequest {
     expiration_date: NaiveDateTime,
 }
 
+#[derive(Debug, Default, Deserialize)]
+pub struct AccountIdRequest {
+    pub account_id: i64,
+}
+
 impl AccountRequest {
     pub fn of(&self) -> Account {
         Account::new(
