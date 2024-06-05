@@ -194,7 +194,7 @@ mod tests {
 
     #[test]
     fn find_by_card_number_existing_card() {
-        let mut account_repository = MockAccountRepository {
+        let account_repository = MockAccountRepository {
             pool: RefCell::new(HashMap::new()),
         };
 
@@ -225,11 +225,11 @@ mod tests {
     }
     #[test]
     fn find_by_card_number_non_existing_card() {
-        let mut account_repository = MockAccountRepository {
+        let account_repository = MockAccountRepository {
             pool: RefCell::new(HashMap::new()),
         };
 
-        let mut card_repository = MockCardRepository {
+        let card_repository: MockCardRepository = MockCardRepository {
             pool: RefCell::new(HashMap::new()),
         };
 
