@@ -191,4 +191,75 @@ mod tests {
         assert_eq!(retrieved_card.card_number, test_card.card_number);
         assert_eq!(retrieved_card.created_at, test_card.created_at);
     }
+
+    #[test]
+    fn find_by_card_number_existing_card() {
+        let mut account_repository = MockAccountRepository {
+            pool: RefCell::new(HashMap::new()),
+        };
+
+        let mut card_repository = MockCardRepository {
+            pool: RefCell::new(HashMap::new()),
+        };
+
+        let test_account = Account {
+            id: AccountId::new(1),
+            username: "test_user".to_string(),
+            grade: 4,
+            expiration_date: Local::now().naive_local() + Duration::hours(1),
+            created_at: Local::now().naive_local(),
+        };
+
+        let test_card = Card {
+            id: CardId::new(1),
+            account_id: AccountId::new(1),
+            card_name: "suica".to_string(),
+            card_number: [1, 16, 3, 16, 197, 20, 106, 38].to_vec(),
+            created_at: Local::now().naive_local(),
+        };
+        let _ = account_repository.insert(&test_account);
+        let _ = card_repository.insert(&test_card);
+
+        let result = card_repository.find_by_card_number(&test_card.card_number);
+        assert_eq!(result.unwrap(), true)
+    }
+    #[test]
+    fn find_by_card_number_non_existing_card() {
+        let mut account_repository = MockAccountRepository {
+            pool: RefCell::new(HashMap::new()),
+        };
+
+        let mut card_repository = MockCardRepository {
+            pool: RefCell::new(HashMap::new()),
+        };
+
+        let test_account = Account {
+            id: AccountId::new(1),
+            username: "test_user".to_string(),
+            grade: 4,
+            expiration_date: Local::now().naive_local() + Duration::hours(1),
+            created_at: Local::now().naive_local(),
+        };
+
+        let test_card = Card {
+            id: CardId::new(1),
+            account_id: AccountId::new(1),
+            card_name: "suica".to_string(),
+            card_number: [1, 16, 3, 16, 197, 20, 106, 38].to_vec(),
+            created_at: Local::now().naive_local(),
+        };
+
+        let dummy_card = Card {
+            id: CardId::new(2),
+            account_id: AccountId::new(1),
+            card_name: "suica".to_string(),
+            card_number: [1, 10, 3, 55, 20, 106, 3].to_vec(),
+            created_at: Local::now().naive_local(),
+        };
+        let _ = account_repository.insert(&test_account);
+        let _ = card_repository.insert(&test_card);
+
+        let result = card_repository.find_by_card_number(&dummy_card.card_number);
+        assert_eq!(result.unwrap(), false)
+    }
 }

@@ -45,4 +45,14 @@ impl CardRepository for MockCardRepository {
             None => Err(anyhow::anyhow!("Card not found")),
         }
     }
+
+    fn find_by_card_number(&self, card_number: &Vec<u8>) -> anyhow::Result<bool> {
+        let exists_card_number = self
+            .pool
+            .borrow()
+            .values()
+            .any(|card| card.card_number == *card_number);
+
+        Ok(exists_card_number)
+    }
 }
