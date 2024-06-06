@@ -55,4 +55,9 @@ impl CardRepository for MockCardRepository {
 
         Ok(exists_card_number)
     }
+
+    fn delete(&self, card: &Card) -> anyhow::Result<()> {
+        let _ = &self.pool.borrow_mut().remove(&card.id.get());
+        Ok(())
+    }
 }
