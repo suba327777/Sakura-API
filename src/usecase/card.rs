@@ -208,6 +208,7 @@ mod tests {
         assert_eq!(retrieved_card.created_at, test_card.created_at);
     }
 
+    #[allow(clippy::bool_assert_comparison)]
     #[test]
     fn find_by_card_number_existing_card() {
         let account_repository = MockAccountRepository {
@@ -237,8 +238,11 @@ mod tests {
         let _ = card_repository.insert(&test_card);
 
         let result = card_repository.find_by_card_number(&test_card.card_number);
+        assert!(result.is_ok(), "Result was an error: {:?}", result);
         assert_eq!(result.unwrap(), true)
     }
+
+    #[allow(clippy::bool_assert_comparison)]
     #[test]
     fn find_by_card_number_non_existing_card() {
         let account_repository = MockAccountRepository {
@@ -276,6 +280,7 @@ mod tests {
         let _ = card_repository.insert(&test_card);
 
         let result = card_repository.find_by_card_number(&dummy_card.card_number);
+        assert!(result.is_ok(), "Result was an error: {:?}", result);
         assert_eq!(result.unwrap(), false)
     }
 
