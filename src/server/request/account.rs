@@ -1,19 +1,25 @@
 use crate::domain::object::account::Account;
-use serde::{Deserialize, Serialize};
+use chrono::NaiveDateTime;
+use serde::Deserialize;
 
-#[derive(Debug, Default, Deserialize, Serialize)]
+#[derive(Debug, Default, Deserialize)]
 pub struct AccountRequest {
     username: String,
     grade: i32,
-    card_type: String,
+    expiration_date: NaiveDateTime,
+}
+
+#[derive(Debug, Default, Deserialize)]
+pub struct AccountIdRequest {
+    pub account_id: i64,
 }
 
 impl AccountRequest {
     pub fn of(&self) -> Account {
-        Account::create(
+        Account::new(
             self.username.to_owned(),
             self.grade.to_owned(),
-            self.card_type.to_owned(),
+            self.expiration_date.to_owned(),
         )
     }
 }

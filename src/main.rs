@@ -6,7 +6,9 @@ use std::thread;
 mod domain;
 mod infrastructures;
 mod server;
+mod tests;
 mod usecase;
+mod utils;
 
 fn main() -> std::io::Result<()> {
     thread::spawn(move || {

@@ -6,8 +6,7 @@ use chrono::NaiveDateTime;
 pub struct NewAccountEntity {
     pub username: String,
     pub grade: i32,
-    pub card_type: String,
-    pub card_id: Vec<u8>,
+    pub expiration_date: NaiveDateTime,
     pub created_at: NaiveDateTime,
 }
 
@@ -17,7 +16,25 @@ pub struct AccountEntity {
     pub id: i64,
     pub username: String,
     pub grade: i32,
-    pub card_type: String,
-    pub card_id: Vec<u8>,
+    pub expiration_date: NaiveDateTime,
+    pub created_at: NaiveDateTime,
+}
+
+#[derive(Debug, Insertable)]
+#[table_name = "card"]
+pub struct NewCardEntity {
+    pub account_id: i64,
+    pub card_name: String,
+    pub card_number: Vec<u8>,
+    pub created_at: NaiveDateTime,
+}
+
+#[derive(Debug, Queryable, Identifiable, AsChangeset)]
+#[table_name = "card"]
+pub struct CardEntity {
+    pub id: i64,
+    pub account_id: i64,
+    pub card_name: String,
+    pub card_number: Vec<u8>,
     pub created_at: NaiveDateTime,
 }
