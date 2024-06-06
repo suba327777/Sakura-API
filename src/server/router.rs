@@ -15,6 +15,7 @@ pub async fn run() -> std::io::Result<()> {
             .service(handler::card::post_card)
             .service(handler::card::get_cards)
             .service(handler::card::get_card)
+            .service(handler::card::delete_card)
     })
     .bind("127.0.0.1:8080")?
     .run()
