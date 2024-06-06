@@ -98,4 +98,12 @@ impl CardRepository for CardRepositoryImpl {
             Err(err) => Err(anyhow::Error::new(err)),
         }
     }
+
+    fn delete(&self, card: &Card) -> anyhow::Result<()> {
+        let mut conn = self.pool.get()?;
+        let entity = CardEntity::from(card);
+        diesel::delete(&entity).execute(&mut conn)?;
+
+        Ok(())
+    }
 }

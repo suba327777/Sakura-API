@@ -49,6 +49,22 @@ pub fn get_card(
     }
 }
 
+pub fn delete_card(
+    card_repository: &mut impl CardRepository,
+    account_repository: &mut impl AccountRepository,
+    card_id: &CardId,
+    account_id: &AccountId,
+) -> anyhow::Result<()> {
+    match account_repository.find_by_id(account_id) {
+        Ok(_) => {
+            let card = card_repository.find_by_id(card_id, account_id)?;
+            card_repository.delete(&card)?;
+            Ok(())
+        }
+        Err(err) => Err(anyhow::anyhow!("Failed to find account: {}", err)),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -198,7 +214,7 @@ mod tests {
             pool: RefCell::new(HashMap::new()),
         };
 
-        let mut card_repository = MockCardRepository {
+        let card_repository = MockCardRepository {
             pool: RefCell::new(HashMap::new()),
         };
 
@@ -261,5 +277,49 @@ mod tests {
 
         let result = card_repository.find_by_card_number(&dummy_card.card_number);
         assert_eq!(result.unwrap(), false)
+    }
+
+    #[test]
+    fn success_delete_card() {
+        let mut account_repository = MockAccountRepository {
+            pool: RefCell::new(HashMap::new()),
+        };
+
+        let mut card_repository: MockCardRepository = MockCardRepository {
+            pool: RefCell::new(HashMap::new()),
+        };
+
+        let test_account = Account {
+            id: AccountId::new(1),
+            username: "test_user".to_string(),
+            grade: 4,
+            expiration_date: Local::now().naive_local() + Duration::hours(1),
+            created_at: Local::now().naive_local(),
+        };
+
+        let test_card = Card {
+            id: CardId::new(1),
+            account_id: AccountId::new(1),
+            card_name: "suica".to_string(),
+            card_number: [1, 16, 3, 16, 197, 20, 106, 38].to_vec(),
+            created_at: Local::now().naive_local(),
+        };
+        let _ = account_repository.insert(&test_account);
+        let _ = card_repository.insert(&test_card);
+
+        let _ = delete_card(
+            &mut card_repository,
+            &mut account_repository,
+            &test_card.id,
+            &test_account.id,
+        );
+
+        assert!(get_card(
+            &mut card_repository,
+            &mut account_repository,
+            &test_card.id,
+            &test_account.id,
+        )
+        .is_err(),)
     }
 }
