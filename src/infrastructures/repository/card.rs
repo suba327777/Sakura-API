@@ -88,7 +88,7 @@ impl CardRepository for CardRepositoryImpl {
         Ok(entity.of())
     }
 
-    fn find_by_card_number(&self, card_number: &Vec<u8>) -> anyhow::Result<bool> {
+    fn find_by_card_number(&self, card_number: &[u8]) -> anyhow::Result<bool> {
         let mut conn = self.pool.get()?;
         let query = dsl::card.filter(dsl::card_number.eq(card_number));
 

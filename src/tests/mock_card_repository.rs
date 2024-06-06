@@ -46,7 +46,7 @@ impl CardRepository for MockCardRepository {
         }
     }
 
-    fn find_by_card_number(&self, card_number: &Vec<u8>) -> anyhow::Result<bool> {
+    fn find_by_card_number(&self, card_number: &[u8]) -> anyhow::Result<bool> {
         let exists_card_number = self
             .pool
             .borrow()
