@@ -4,9 +4,9 @@ use serde::Deserialize;
 
 #[derive(Debug, Default, Deserialize)]
 pub struct AccountRequest {
-    username: String,
-    grade: i32,
-    expiration_date: NaiveDateTime,
+    pub username: String,
+    pub grade: i32,
+    pub expiration_date: NaiveDateTime,
 }
 
 #[derive(Debug, Default, Deserialize)]
