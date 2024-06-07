@@ -9,6 +9,7 @@ mod server;
 mod tests;
 mod usecase;
 mod utils;
+mod adapter;
 
 fn main() -> std::io::Result<()> {
     thread::spawn(move || {
