@@ -1,5 +1,7 @@
 use crate::domain::object::account::{Account, AccountId};
 use crate::domain::repository::account::AccountRepository;
+use crate::server::request::account::AccountRequest;
+use actix_web::web::Json;
 use anyhow::Result;
 
 pub fn post_account(repository: &mut impl AccountRepository, account: &Account) -> Result<()> {
@@ -15,6 +17,16 @@ pub fn get_account(
     account_id: &AccountId,
 ) -> Result<Account> {
     repository.find_by_id(account_id)
+}
+
+pub fn put_account(
+    repository: &mut impl AccountRepository,
+    request: Json<AccountRequest>,
+    account_id: &AccountId,
+) -> anyhow::Result<()> {
+    let account = repository.find_by_id(account_id)?;
+    let updated_account = request.model(account.id, account.created_at);
+    repository.update(&updated_account)
 }
 
 pub fn delete_account(

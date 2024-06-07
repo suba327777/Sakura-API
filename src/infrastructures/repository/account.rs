@@ -91,6 +91,18 @@ impl AccountRepository for AccountRepositoryImpl {
         Ok(entity.of())
     }
 
+    fn update(&self, account: &Account) -> anyhow::Result<()> {
+        use super::super::database::schema::account::dsl;
+
+        let mut conn = self.pool.get()?;
+        let entity = AccountEntity::from(account);
+        diesel::update(dsl::account.filter(dsl::id.eq(account.id.get())))
+            .set(&entity)
+            .execute(&mut conn)?;
+
+        Ok(())
+    }
+
     fn delete(&self, account: &Account) -> Result<()> {
         let entity = AccountEntity::from(account);
         let mut conn = self.pool.get()?;
