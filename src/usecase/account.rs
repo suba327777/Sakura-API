@@ -1,26 +1,41 @@
 use crate::domain::object::account::{Account, AccountId};
 use crate::domain::repository::account::AccountRepository;
-use anyhow::Result;
+use crate::server::request::account::AccountRequest;
+use actix_web::web::Json;
+use anyhow;
 
-pub fn post_account(repository: &mut impl AccountRepository, account: &Account) -> Result<()> {
+pub fn post_account(
+    repository: &mut impl AccountRepository,
+    account: &Account,
+) -> anyhow::Result<()> {
     repository.insert(account)
 }
 
-pub fn get_account_list(repository: &mut impl AccountRepository) -> Result<Vec<Account>> {
+pub fn get_account_list(repository: &mut impl AccountRepository) -> anyhow::Result<Vec<Account>> {
     repository.list()
 }
 
 pub fn get_account(
     repository: &mut impl AccountRepository,
     account_id: &AccountId,
-) -> Result<Account> {
+) -> anyhow::Result<Account> {
     repository.find_by_id(account_id)
+}
+
+pub fn put_account(
+    repository: &mut impl AccountRepository,
+    request: &Json<AccountRequest>,
+    account_id: &AccountId,
+) -> anyhow::Result<()> {
+    let account = repository.find_by_id(account_id)?;
+    let updated_account = request.model(account.id, account.created_at);
+    repository.update(&updated_account)
 }
 
 pub fn delete_account(
     repository: &mut impl AccountRepository,
     account_id: &AccountId,
-) -> Result<()> {
+) -> anyhow::Result<()> {
     let account = repository.find_by_id(account_id)?;
     repository.delete(&account)
 }
@@ -134,6 +149,31 @@ mod tests {
         let result = get_account(&mut repository, &AccountId::new(2));
 
         assert!(result.is_err());
+    }
+
+    #[test]
+    fn success_put_account() {
+        let mut repository = MockAccountRepository {
+            pool: RefCell::new(HashMap::new()),
+        };
+
+        let test_account = Account {
+            id: AccountId::new(1),
+            username: "test_user".to_string(),
+            grade: 4,
+            expiration_date: Local::now().naive_local() + Duration::hours(1),
+            created_at: Local::now().naive_local(),
+        };
+
+        let update_account = AccountRequest {
+            username: "update_user".to_string(),
+            grade: 3,
+            expiration_date: Local::now().naive_local() + Duration::hours(2),
+        };
+
+        let _ = repository.insert(&test_account);
+        let result = put_account(&mut repository, &Json(update_account), &test_account.id);
+        assert!(result.is_ok());
     }
 
     #[test]
