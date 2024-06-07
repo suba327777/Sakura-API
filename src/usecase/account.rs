@@ -2,9 +2,12 @@ use crate::domain::object::account::{Account, AccountId};
 use crate::domain::repository::account::AccountRepository;
 use crate::server::request::account::AccountRequest;
 use actix_web::web::Json;
-use anyhow::Result;
+use anyhow;
 
-pub fn post_account(repository: &mut impl AccountRepository, account: &Account) -> Result<()> {
+pub fn post_account(
+    repository: &mut impl AccountRepository,
+    account: &Account,
+) -> anyhow::Result<()> {
     repository.insert(account)
 }
 
@@ -15,7 +18,7 @@ pub fn get_account_list(repository: &mut impl AccountRepository) -> Result<Vec<A
 pub fn get_account(
     repository: &mut impl AccountRepository,
     account_id: &AccountId,
-) -> Result<Account> {
+) -> anyhow::Result<Account> {
     repository.find_by_id(account_id)
 }
 
@@ -32,7 +35,7 @@ pub fn put_account(
 pub fn delete_account(
     repository: &mut impl AccountRepository,
     account_id: &AccountId,
-) -> Result<()> {
+) -> anyhow::Result<()> {
     let account = repository.find_by_id(account_id)?;
     repository.delete(&account)
 }
