@@ -1,4 +1,4 @@
-use crate::domain::repository::account::AccountRepository;
+use std::collections::HashMap;
 use crate::domain::repository::mqtt::client::MqttClientRepository;
 use crate::infrastructures::config::mqtt_config::MqttConfig;
 use crate::infrastructures::iot::mqtt_client::MqttClient;
@@ -13,6 +13,11 @@ impl MqttConnection {
     }
 
     pub fn mqtt_client_repository(&self) -> impl MqttClientRepository {
-        MqttClient::new(self.cfg.device_id.clone(), self.cfg.address.clone());
+        MqttClient {
+            device_id: self.cfg.device_id.clone(),
+            address: self.cfg.address.clone(),
+            client: None,
+            handlers: HashMap::new(),
+        }
     }
 }

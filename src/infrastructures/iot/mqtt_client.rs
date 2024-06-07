@@ -1,11 +1,8 @@
 use crate::domain::repository::mqtt::client::{MessageHandler, MqttClientRepository};
-use crate::domain::repository::mqtt::subscriber::MessageHandler;
-use anyhow::anyhow;
-use futures::{executor::block_on, stream::StreamExt, TryFutureExt};
+use futures::{executor::block_on, stream::StreamExt};
 use paho_mqtt::{self as mqtt, Message, MQTT_VERSION_5};
 use std::collections::HashMap;
-use std::env;
-use std::sync::Arc;
+use std::{env};
 use std::time::Duration;
 
 #[allow(dead_code)]
@@ -28,44 +25,10 @@ impl MqttClient {
             handlers: HashMap::new(),
         }
     }
-
-    pub async fn start_mqtt_check(&mut self) {
-        match self.client {
-            Some(ref mut client) => {
-                let mut strm = client.get_stream(25);
-
-                println!("Waiting for messages...");
-                while let Some(msg_opt) = strm.next().await {
-                    if let Some(msg) = msg_opt {
-                        if msg.retained() {
-                            print!("(R) ");
-                        }
-                        println!("{}", msg);
-                        // ここで対応するハンドラーを呼び出す
-                        let handlers = &self.handlers;
-                        if let Some(handler) = handlers.get(msg.topic()) {
-                            handler(&msg);
-                        }
-                    } else {
-                        // A "None" means we were disconnected. Try to reconnect...
-                        println!("Lost connection. Attempting reconnect.");
-                        while let Err(err) = client.reconnect().await {
-                            println!("Error reconnecting: {}", err);
-                            // For tokio use: tokio::time::delay_for()
-                            async_std::task::sleep(Duration::from_millis(1000)).await;
-                        }
-                    }
-                }
-            }
-            None => {
-                eprintln!("Error: MQTT client is not initialized.");
-            }
-        }
-    }
 }
 
 impl MqttClientRepository for MqttClient {
-    async fn connect(&mut self) -> Result<(), std::io::Error> {
+    fn connect(&mut self) -> anyhow::Result<()> {
         let host = env::args()
             .nth(1)
             .unwrap_or_else(|| "mqtt://".to_string() + &self.address);
@@ -95,7 +58,7 @@ impl MqttClientRepository for MqttClient {
             .will_message(lwt)
             .finalize();
 
-        cli.connect(conn_opts).await?;
+        cli.connect(conn_opts);
 
         self.client = Some(cli);
 
@@ -103,10 +66,13 @@ impl MqttClientRepository for MqttClient {
     }
 
     fn disconnect(&self) -> anyhow::Result<()> {
-        if let Some(ref client) = self.client {
-            client
-                .disconnect(None)
-                .map_err(|err| anyhow!("Failed to disconnect: {}", err))?;
+        match self.client {
+            Some(ref mut client) => {
+                client.disconnect(None);
+            }
+            None => {
+                eprintln!("Error: MQTT client is not initialized.");
+            }
         }
         Ok(())
     }
@@ -133,4 +99,6 @@ impl MqttClientRepository for MqttClient {
         )?;
         Ok(())
     }
+
+
 }
