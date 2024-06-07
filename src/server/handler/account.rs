@@ -49,7 +49,7 @@ async fn put_account(
     path_params: web::Path<(i64,)>,
 ) -> impl Responder {
     let account_id = AccountId::new(path_params.into_inner().0);
-    match usecase::account::put_account(&mut data.account_repository(), request, &account_id) {
+    match usecase::account::put_account(&mut data.account_repository(), &request, &account_id) {
         Ok(_) => HttpResponse::Ok().finish(),
         Err(err) => {
             HttpResponse::InternalServerError().json(format!("Internal Server Error {}", err))
