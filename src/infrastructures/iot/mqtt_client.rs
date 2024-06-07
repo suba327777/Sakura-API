@@ -7,6 +7,7 @@ use std::time::Duration;
 
 type MessageHandler = Arc<dyn Fn(&Message) + Send + Sync>;
 
+#[allow(dead_code)]
 pub trait MessageListener: Fn(Message) + Send + Sync + 'static {}
 impl<T> MessageListener for T where T: Fn(Message) + Send + Sync + 'static {}
 

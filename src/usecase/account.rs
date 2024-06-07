@@ -21,7 +21,7 @@ pub fn delete_account(
     repository: &mut impl AccountRepository,
     account_id: &AccountId,
 ) -> Result<()> {
-    let account = repository.find_by_id(account_id).unwrap();
+    let account = repository.find_by_id(account_id)?;
     repository.delete(&account)
 }
 
@@ -29,42 +29,10 @@ pub fn delete_account(
 mod tests {
     use super::*;
     use crate::domain::object::account::AccountId;
-    use chrono::Local;
+    use crate::tests::mock_account_repository::MockAccountRepository;
+    use chrono::{Duration, Local};
     use std::cell::RefCell;
     use std::collections::HashMap;
-
-    use anyhow::Result;
-
-    struct MockAccountRepository {
-        pool: RefCell<HashMap<i64, Account>>,
-    }
-
-    impl AccountRepository for MockAccountRepository {
-        fn insert(&self, account: &Account) -> Result<()> {
-            let _ = &self
-                .pool
-                .borrow_mut()
-                .entry(account.id.get())
-                .or_insert_with(|| account.clone());
-
-            Ok(())
-        }
-        fn list(&self) -> Result<Vec<Account>> {
-            let accounts: Vec<Account> = self.pool.borrow().values().cloned().collect();
-            Ok(accounts)
-        }
-
-        fn find_by_id(&self, account_id: &AccountId) -> Result<Account> {
-            match self.pool.borrow().get(&account_id.get()) {
-                Some(account) => Ok(account.clone()),
-                None => Err(anyhow::anyhow!("Account not found")),
-            }
-        }
-        fn delete(&self, account: &Account) -> Result<()> {
-            let _ = &self.pool.borrow_mut().remove(&account.id.get());
-            Ok(())
-        }
-    }
 
     #[test]
     fn success_post_account() {
@@ -76,8 +44,7 @@ mod tests {
             id: AccountId::new(1),
             username: "test_user".to_string(),
             grade: 4,
-            card_type: "Suica".to_string(),
-            card_id: vec![1, 16, 3, 16, 197, 20, 106, 38],
+            expiration_date: Local::now().naive_local() + Duration::hours(1),
             created_at: Local::now().naive_local(),
         };
 
@@ -95,8 +62,7 @@ mod tests {
             id: AccountId::new(1),
             username: "test_user".to_string(),
             grade: 4,
-            card_type: "Suica".to_string(),
-            card_id: vec![1, 16, 3, 16, 197, 20, 106, 38],
+            expiration_date: Local::now().naive_local() + Duration::hours(1),
             created_at: Local::now().naive_local(),
         };
 
@@ -104,8 +70,7 @@ mod tests {
             id: AccountId::new(2),
             username: "test_user2".to_string(),
             grade: 4,
-            card_type: "Suica".to_string(),
-            card_id: vec![1, 16, 3, 16, 197, 20, 106, 38],
+            expiration_date: Local::now().naive_local() + Duration::hours(1),
             created_at: Local::now().naive_local(),
         };
 
@@ -128,8 +93,7 @@ mod tests {
             id: AccountId::new(1),
             username: "test_user".to_string(),
             grade: 4,
-            card_type: "Suica".to_string(),
-            card_id: vec![1, 16, 3, 16, 197, 20, 106, 38],
+            expiration_date: Local::now().naive_local() + Duration::hours(1),
             created_at: Local::now().naive_local(),
         };
 
@@ -144,8 +108,10 @@ mod tests {
         assert_eq!(retrieved_account.id.get(), test_account.id.get());
         assert_eq!(retrieved_account.username, test_account.username);
         assert_eq!(retrieved_account.grade, test_account.grade);
-        assert_eq!(retrieved_account.card_type, test_account.card_type);
-        assert_eq!(retrieved_account.card_id, test_account.card_id);
+        assert_eq!(
+            retrieved_account.expiration_date,
+            test_account.expiration_date
+        );
         assert_eq!(retrieved_account.created_at, test_account.created_at);
     }
 
@@ -159,8 +125,7 @@ mod tests {
             id: AccountId::new(1),
             username: "test_user".to_string(),
             grade: 4,
-            card_type: "Suica".to_string(),
-            card_id: vec![1, 16, 3, 16, 197, 20, 106, 38],
+            expiration_date: Local::now().naive_local() + Duration::hours(1),
             created_at: Local::now().naive_local(),
         };
 
@@ -181,8 +146,7 @@ mod tests {
             id: AccountId::new(1),
             username: "test_user".to_string(),
             grade: 4,
-            card_type: "Suica".to_string(),
-            card_id: vec![1, 16, 3, 16, 197, 20, 106, 38],
+            expiration_date: Local::now().naive_local() + Duration::hours(1),
             created_at: Local::now().naive_local(),
         };
 
