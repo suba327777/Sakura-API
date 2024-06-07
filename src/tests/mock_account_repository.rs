@@ -29,6 +29,17 @@ impl AccountRepository for MockAccountRepository {
             None => Err(anyhow::anyhow!("Account not found")),
         }
     }
+
+    fn update(&self, account: &Account) -> anyhow::Result<()> {
+        let _ = &self
+            .pool
+            .borrow_mut()
+            .entry(account.id.get())
+            .or_insert_with(|| account.clone());
+
+        Ok(())
+    }
+
     fn delete(&self, account: &Account) -> anyhow::Result<()> {
         let _ = &self.pool.borrow_mut().remove(&account.id.get());
         Ok(())

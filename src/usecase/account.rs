@@ -11,7 +11,7 @@ pub fn post_account(
     repository.insert(account)
 }
 
-pub fn get_account_list(repository: &mut impl AccountRepository) -> Result<Vec<Account>> {
+pub fn get_account_list(repository: &mut impl AccountRepository) -> anyhow::Result<Vec<Account>> {
     repository.list()
 }
 
@@ -24,7 +24,7 @@ pub fn get_account(
 
 pub fn put_account(
     repository: &mut impl AccountRepository,
-    request: Json<AccountRequest>,
+    request: &Json<AccountRequest>,
     account_id: &AccountId,
 ) -> anyhow::Result<()> {
     let account = repository.find_by_id(account_id)?;
@@ -149,6 +149,31 @@ mod tests {
         let result = get_account(&mut repository, &AccountId::new(2));
 
         assert!(result.is_err());
+    }
+
+    #[test]
+    fn success_put_account() {
+        let mut repository = MockAccountRepository {
+            pool: RefCell::new(HashMap::new()),
+        };
+
+        let test_account = Account {
+            id: AccountId::new(1),
+            username: "test_user".to_string(),
+            grade: 4,
+            expiration_date: Local::now().naive_local() + Duration::hours(1),
+            created_at: Local::now().naive_local(),
+        };
+
+        let update_account = AccountRequest {
+            username: "update_user".to_string(),
+            grade: 3,
+            expiration_date: Local::now().naive_local() + Duration::hours(2),
+        };
+
+        let _ = repository.insert(&test_account);
+        let result = put_account(&mut repository, &Json(update_account), &test_account.id);
+        assert!(result.is_ok());
     }
 
     #[test]
