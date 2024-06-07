@@ -3,13 +3,13 @@ extern crate diesel;
 
 use crate::infrastructures::config::mqtt_config::MqttConfig;
 use std::thread;
+mod adapter;
 mod domain;
 mod infrastructures;
 mod server;
 mod tests;
 mod usecase;
 mod utils;
-mod adapter;
 
 fn main() -> std::io::Result<()> {
     thread::spawn(move || {
@@ -18,7 +18,8 @@ fn main() -> std::io::Result<()> {
 
         let result = async move {
             println!("mqtt start");
-            let result = infrastructures::iot::initializer::run(cfg).await;
+            let con = infrastructures::mqtt_connection::MqttConnection::new(cfg);
+            let result = usecase::mqtt::run(con.mqtt_client_repository(), cfg.clone());
             println!("mqtt end");
             result
         };

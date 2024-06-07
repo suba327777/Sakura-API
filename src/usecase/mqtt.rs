@@ -7,4 +7,3 @@ pub async fn run(mut client: MqttClient, cfg: MqttConfig) -> std::io::Result<()>
     client.start_mqtt_check().await;
     result
 }
-

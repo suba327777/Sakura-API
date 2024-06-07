@@ -1,14 +1,14 @@
-use std::sync::Arc;
-use paho_mqtt::Message;
 use crate::domain::object::mqtt::door_state::DoorState;
 use crate::domain::object::mqtt::mqtt_card::MqttCard;
 use crate::domain::repository::mqtt::client::MqttClientRepository;
 use crate::infrastructures::config::mqtt_config::MqttConfig;
 use crate::infrastructures::iot::mqtt_client::MqttClient;
+use paho_mqtt::Message;
+use std::sync::Arc;
 
-pub fn mqtt_register_listener(mqtt_client: &mut MqttClient, cfg: MqttConfig){
+pub fn mqtt_register_listener(mqtt_client: &mut MqttClient, cfg: MqttConfig) {
     let cfg_clone = cfg.clone();
-    let device_id = cfg.device_id.clone();  // cfg.device_id をクローンして String を作成
+    let device_id = cfg.device_id.clone(); // cfg.device_id をクローンして String を作成
 
     mqtt_client
         .subscribe(
@@ -26,7 +26,7 @@ pub fn mqtt_register_listener(mqtt_client: &mut MqttClient, cfg: MqttConfig){
                 let card: MqttCard = serde_json::from_str(&msg.payload_str()).unwrap();
                 // TODO: カードを受け取れるので、これを照合して開ける
                 // TODO: またはカード登録処理のために別でフックする。
-                let is_open = true;  // 本来はデータベース等でチェック
+                let is_open = true; // 本来はデータベース等でチェック
                 let open_state = DoorState {
                     device_id: device_id.clone(),
                     open: is_open,

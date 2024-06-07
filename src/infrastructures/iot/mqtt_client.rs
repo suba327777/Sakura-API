@@ -1,13 +1,12 @@
+use crate::domain::repository::mqtt::client::{MessageHandler, MqttClientRepository};
+use crate::domain::repository::mqtt::subscriber::MessageHandler;
+use anyhow::anyhow;
 use futures::{executor::block_on, stream::StreamExt, TryFutureExt};
 use paho_mqtt::{self as mqtt, Message, MQTT_VERSION_5};
 use std::collections::HashMap;
 use std::env;
 use std::sync::Arc;
 use std::time::Duration;
-use anyhow::anyhow;
-use crate::domain::repository::mqtt::client::{MessageHandler, MqttClientRepository};
-use crate::domain::repository::mqtt::subscriber::MessageHandler;
-
 
 #[allow(dead_code)]
 pub trait MessageListener: Fn(Message) + Send + Sync + 'static {}
@@ -105,7 +104,9 @@ impl MqttClientRepository for MqttClient {
 
     fn disconnect(&self) -> anyhow::Result<()> {
         if let Some(ref client) = self.client {
-            client.disconnect(None).map_err(|err| anyhow!("Failed to disconnect: {}", err))?;
+            client
+                .disconnect(None)
+                .map_err(|err| anyhow!("Failed to disconnect: {}", err))?;
         }
         Ok(())
     }
@@ -132,6 +133,4 @@ impl MqttClientRepository for MqttClient {
         )?;
         Ok(())
     }
-
-
 }
