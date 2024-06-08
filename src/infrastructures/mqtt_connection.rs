@@ -1,9 +1,9 @@
 use crate::domain::repository::mqtt::client::MqttClientRepository;
 use crate::infrastructures::config::mqtt_config::MqttConfig;
 use crate::infrastructures::iot::mqtt_client::MqttClient;
+use reqwest::Client;
 use std::collections::HashMap;
 use std::env;
-use reqwest::Client;
 
 pub struct MqttConnection {
     cfg: MqttConfig,
@@ -18,7 +18,6 @@ impl MqttConnection {
         let host = env::args()
             .nth(1)
             .unwrap_or_else(|| "mqtt://".to_string() + &self.cfg.address);
-
 
         let create_opts = paho_mqtt::CreateOptionsBuilder::new()
             .server_uri(host)

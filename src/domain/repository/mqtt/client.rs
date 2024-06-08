@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use paho_mqtt::{self as mqtt, AsyncReceiver, Message};
+use std::collections::HashMap;
 use std::sync::Arc;
 
 pub trait MqttClientRepository {

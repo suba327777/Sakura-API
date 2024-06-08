@@ -1,9 +1,9 @@
 #[macro_use]
 extern crate diesel;
 
-use std::collections::HashMap;
-use crate::infrastructures::config::mqtt_config::MqttConfig;
 use crate::domain::repository::mqtt::client::MqttClientRepository;
+use crate::infrastructures::config::mqtt_config::MqttConfig;
+use std::collections::HashMap;
 use std::thread;
 
 mod adapter;
