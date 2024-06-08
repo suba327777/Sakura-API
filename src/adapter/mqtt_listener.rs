@@ -7,7 +7,21 @@ use std::sync::Arc;
 
 pub fn mqtt_register_listener(mqtt_client: &mut impl MqttClientRepository, cfg: MqttConfig) {
     let cfg_clone = cfg.clone();
-    let device_id = cfg.device_id.clone(); // cfg.device_id をクローンして String を作成
+    let device_id = cfg.device_id.clone(); // cfg.device_id をクローンして String を作
+
+    // set message callback使えるならこちらでよいのではないか
+    // わざわざHandlresを苦しむ必要はないかも
+    // mqtt_client.get_connection().set_message_callback()
+    // 見た感じ一つしか設定できない？
+    // でもわざわざStrmを使用して五による必要はなさそう。
+
+    // mqtt_client.get_connection().set_message_callback({
+    //     // ここで対応するハンドラーを呼び出す
+    //     let handlers = mqtt_client.get_handlers();
+    //     if let Some(handler) = handlers.get(msg.topic()) {
+    //         handler(&msg);
+    //     }
+    // });
 
     mqtt_client
         .subscribe(

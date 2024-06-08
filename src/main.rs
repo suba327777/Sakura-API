@@ -1,9 +1,10 @@
 #[macro_use]
 extern crate diesel;
 
+use std::collections::HashMap;
 use crate::infrastructures::config::mqtt_config::MqttConfig;
+use crate::domain::repository::mqtt::client::MqttClientRepository;
 use std::thread;
-
 
 mod adapter;
 mod domain;
@@ -20,8 +21,9 @@ fn main() -> std::io::Result<()> {
 
         let result = async move {
             println!("mqtt start");
-            let con = infrastructures::mqtt_connection::MqttConnection::new(cfg);
+            let con = infrastructures::mqtt_connection::MqttConnection::new(cfg.clone());
             let result = usecase::mqtt::run(con.mqtt_client_repository(), cfg.clone());
+
             println!("mqtt end");
             result
         };

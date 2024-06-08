@@ -1,9 +1,10 @@
 use crate::domain::repository::mqtt::client::{MessageHandler, MqttClientRepository};
 use futures::{executor::block_on, stream::StreamExt};
-use paho_mqtt::{self as mqtt, Message, MQTT_VERSION_5};
+use paho_mqtt::{self as mqtt, AsyncClient, AsyncReceiver, Message, MQTT_VERSION_5};
 use std::collections::HashMap;
-use std::{env};
+use std::env;
 use std::time::Duration;
+use async_std::channel::Receiver;
 
 #[allow(dead_code)]
 pub trait MessageListener: Fn(Message) + Send + Sync + 'static {}
@@ -12,38 +13,39 @@ impl<T> MessageListener for T where T: Fn(Message) + Send + Sync + 'static {}
 pub struct MqttClient {
     pub device_id: String,
     pub address: String,
-    pub client: Option<paho_mqtt::AsyncClient>,
+    pub client: paho_mqtt::AsyncClient,
     pub handlers: HashMap<String, MessageHandler>,
 }
 
 impl MqttClient {
     pub fn new(device_id: String, address: String) -> MqttClient {
-        MqttClient {
-            device_id,
-            address,
-            client: None,
-            handlers: HashMap::new(),
-        }
-    }
-}
-
-impl MqttClientRepository for MqttClient {
-    fn connect(&mut self) -> anyhow::Result<()> {
         let host = env::args()
             .nth(1)
-            .unwrap_or_else(|| "mqtt://".to_string() + &self.address);
+            .unwrap_or_else(|| "mqtt://".to_string() + &address);
 
-        println!("Connecting to the MQTT server at '{}'...", host);
 
         let create_opts = mqtt::CreateOptionsBuilder::new()
             .server_uri(host)
-            .client_id(&self.device_id)
+            .client_id(&device_id)
             .finalize();
 
         let cli = mqtt::AsyncClient::new(create_opts).unwrap_or_else(|e| {
             eprintln!("Error creating the client: {:?}", e);
             std::process::exit(1);
         });
+        MqttClient {
+            device_id,
+            address,
+            client: cli,
+            handlers: HashMap::new(),
+        }
+    }
+}
+
+impl MqttClientRepository for MqttClient {
+    fn connect(&self) -> anyhow::Result<()> {
+
+        println!("Connecting to the MQTT server at '{}'...", "mqtt://".to_string() + &self.address.to_string());
 
         // Define the set of options for the connection
         let lwt = mqtt::Message::new(
@@ -58,27 +60,18 @@ impl MqttClientRepository for MqttClient {
             .will_message(lwt)
             .finalize();
 
-        cli.connect(conn_opts);
-
-        self.client = Some(cli);
+        self.client.connect(conn_opts);
 
         Ok(())
     }
 
     fn disconnect(&self) -> anyhow::Result<()> {
-        match self.client {
-            Some(ref mut client) => {
-                client.disconnect(None);
-            }
-            None => {
-                eprintln!("Error: MQTT client is not initialized.");
-            }
-        }
+        self.client.disconnect(None);
         Ok(())
     }
 
     fn subscribe(&mut self, topic: &str, handler: MessageHandler) -> Result<(), mqtt::Error> {
-        block_on(async { self.client.as_mut().unwrap().subscribe(topic, 0).await }).map_err(
+        block_on(async { self.client.subscribe(topic, 0).await }).map_err(
             |err| {
                 eprintln!("Subscription error: {}", err);
                 err
@@ -91,7 +84,7 @@ impl MqttClientRepository for MqttClient {
 
     fn publish(&mut self, topic: &str, message: &str) -> Result<(), mqtt::Error> {
         let mqtt_data = Message::new(topic, message, 0);
-        block_on(async { self.client.as_mut().unwrap().publish(mqtt_data).await }).map_err(
+        block_on(async { self.client.publish(mqtt_data).await }).map_err(
             |err| {
                 eprintln!("publish error: {}", err);
                 err
@@ -100,5 +93,15 @@ impl MqttClientRepository for MqttClient {
         Ok(())
     }
 
+    fn get_connection(&self) -> &AsyncClient {
+        &self.client
+    }
 
+    fn get_handlers(&self) -> &HashMap<String, MessageHandler> {
+        &self.handlers
+    }
+
+    // fn get_stream(&mut self) -> &AsyncReceiver<Option<Message>> {
+    //     &self.client.get_stream(25)
+    // }
 }
