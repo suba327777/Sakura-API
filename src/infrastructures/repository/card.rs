@@ -1,5 +1,4 @@
 use super::super::database::models::{CardEntity, NewCardEntity};
-use super::super::database::schema::card::{dsl, id};
 use crate::domain::object::account::AccountId;
 use crate::domain::object::card::{Card, CardId};
 use crate::domain::repository::card::CardRepository;
@@ -59,6 +58,8 @@ impl CardEntity {
 
 impl CardRepository for CardRepositoryImpl {
     fn insert(&self, card: &Card) -> anyhow::Result<()> {
+        use super::super::database::schema::card::dsl;
+
         let entity = NewCardEntity::from(card);
         let mut conn = self.pool.get()?;
         diesel::insert_into(dsl::card)
@@ -69,6 +70,8 @@ impl CardRepository for CardRepositoryImpl {
     }
 
     fn list(&self, account_id: &AccountId) -> anyhow::Result<Vec<Card>> {
+        use super::super::database::schema::card::dsl;
+
         let query = dsl::card
             .filter(dsl::account_id.eq(account_id.get()))
             .into_boxed();
@@ -79,6 +82,8 @@ impl CardRepository for CardRepositoryImpl {
     }
 
     fn find_by_id(&self, card_id: &CardId, account_id: &AccountId) -> anyhow::Result<Card> {
+        use super::super::database::schema::card::{dsl, id};
+
         let mut conn = self.pool.get()?;
         let entity: CardEntity = dsl::card
             .filter(id.eq(card_id.get()))
@@ -89,6 +94,8 @@ impl CardRepository for CardRepositoryImpl {
     }
 
     fn find_by_card_number(&self, card_number: &[u8]) -> anyhow::Result<bool> {
+        use super::super::database::schema::card::dsl;
+
         let mut conn = self.pool.get()?;
         let query = dsl::card.filter(dsl::card_number.eq(card_number));
 
