@@ -19,7 +19,6 @@ fn main() -> std::io::Result<()> {
         let cfg = confy::load_path::<MqttConfig>("./config.yaml")
             .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e.to_string()))?;
 
-
         let result = async move {
             println!("mqtt start");
             let con = infrastructures::mqtt_connection::MqttConnection::new(cfg.clone());

@@ -7,8 +7,9 @@ use paho_mqtt::Message;
 use std::collections::HashMap;
 use std::time::Duration;
 
-pub fn run(mut client: impl MqttClientRepository, cfg: MqttConfig) -> anyhow::Result<()> {
-    let result = client.connect();
+pub async fn run(mut client: impl MqttClientRepository, cfg: MqttConfig) -> anyhow::Result<()> {
+    client.connect().await?;
     mqtt_register_listener(&mut client, cfg.clone());
-    result
+    client.start();
+    Ok(())
 }

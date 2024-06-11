@@ -10,10 +10,12 @@ use std::time::Duration;
 pub trait MessageListener: Fn(Message) + Send + Sync + 'static {}
 impl<T> MessageListener for T where T: Fn(Message) + Send + Sync + 'static {}
 
+const TOPICS: &[&str] = &["test", "hello"];
+
 pub struct MqttClient {
     pub device_id: String,
     pub address: String,
-    pub client: paho_mqtt::AsyncClient,
+    pub client: AsyncClient,
     pub handlers: HashMap<String, MessageHandler>,
 }
 
@@ -28,10 +30,11 @@ impl MqttClient {
             .client_id(&device_id)
             .finalize();
 
-        let cli = mqtt::AsyncClient::new(create_opts).unwrap_or_else(|e| {
+        let mut cli = mqtt::AsyncClient::new(create_opts).unwrap_or_else(|e| {
             eprintln!("Error creating the client: {:?}", e);
             std::process::exit(1);
         });
+
         MqttClient {
             device_id,
             address,
@@ -42,7 +45,7 @@ impl MqttClient {
 }
 
 impl MqttClientRepository for MqttClient {
-    fn connect(&self) -> anyhow::Result<()> {
+    async fn connect(&mut self) -> anyhow::Result<()> {
         println!(
             "Connecting to the MQTT server at '{}'...",
             "mqtt://".to_string() + &self.address.to_string()
@@ -55,13 +58,20 @@ impl MqttClientRepository for MqttClient {
             mqtt::QOS_1,
         );
 
+
+
         let conn_opts = mqtt::ConnectOptionsBuilder::with_mqtt_version(MQTT_VERSION_5)
             .clean_start(false)
             .properties(mqtt::properties![mqtt::PropertyCode::SessionExpiryInterval => 3600])
             .will_message(lwt)
             .finalize();
 
-        self.client.connect(conn_opts);
+        // Get message stream before connecting.
+        // let mut strm = self.client.get_stream(25);
+
+        // Make the connection to the broker
+        self.client.connect(conn_opts).await?;
+        self.client.subscribe_many(TOPICS, &[1, 1]).await?;
 
         Ok(())
     }
@@ -101,4 +111,35 @@ impl MqttClientRepository for MqttClient {
     // fn get_stream(&mut self) -> &AsyncReceiver<Option<Message>> {
     //     &self.client.get_stream(25)
     // }
+
+    fn start(&mut self){
+        block_on(async {
+            let mut strm = self.client.get_stream(25);
+            // Just loop on incoming messages.
+            println!("Waiting for messages...");
+
+            // Note that we're not providing a way to cleanly shut down and
+            // disconnect. Therefore, when you kill this app (with a ^C or
+            // whatever) the server will get an unexpected drop and then
+            // should emit the LWT message.
+
+            while let Some(msg_opt) = strm.next().await {
+                if let Some(msg) = msg_opt {
+                    if msg.retained() {
+                        print!("(R) ");
+                    }
+                    println!("{}", msg);
+                }
+                else {
+                    // A "None" means we were disconnected. Try to reconnect...
+                    println!("Lost connection. Attempting reconnect.");
+                    while let Err(err) = self.client.reconnect().await {
+                        println!("Error reconnecting: {}", err);
+                        // For tokio use: tokio::time::delay_for()
+                        async_std::task::sleep(Duration::from_millis(1000)).await;
+                    }
+                }
+            }
+        })
+    }
 }

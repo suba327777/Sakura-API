@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 pub trait MqttClientRepository {
-    fn connect(&self) -> anyhow::Result<()>;
+    async fn connect(&mut self) -> anyhow::Result<()>;
     fn disconnect(&self) -> anyhow::Result<()>;
     fn subscribe(&mut self, topic: &str, handler: MessageHandler) -> Result<(), mqtt::Error>;
     fn publish(&mut self, topic: &str, message: &str) -> Result<(), mqtt::Error>;
@@ -11,6 +11,8 @@ pub trait MqttClientRepository {
     fn get_connection(&self) -> &paho_mqtt::AsyncClient;
 
     fn get_handlers(&self) -> &HashMap<String, MessageHandler>;
+
+    fn start(&mut self);
 
     // fn get_stream(&mut self) -> &AsyncReceiver<Option<Message>>;
 }
