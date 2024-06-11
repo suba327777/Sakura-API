@@ -4,7 +4,7 @@ use crate::server::connection::RequestContext;
 use futures::{executor::block_on, stream::StreamExt};
 use paho_mqtt::{self as mqtt, AsyncClient, Message, MQTT_VERSION_5};
 use std::collections::HashMap;
-use std::env;
+
 use std::time::Duration;
 
 #[allow(dead_code)]
@@ -22,29 +22,29 @@ pub struct MqttClient {
 }
 
 impl MqttClient {
-    pub fn new(device_id: String, address: String) -> MqttClient {
-        let host = env::args()
-            .nth(1)
-            .unwrap_or_else(|| "mqtt://".to_string() + &address);
-
-        let create_opts = mqtt::CreateOptionsBuilder::new()
-            .server_uri(host)
-            .client_id(&device_id)
-            .finalize();
-
-        let cli = mqtt::AsyncClient::new(create_opts).unwrap_or_else(|e| {
-            eprintln!("Error creating the client: {:?}", e);
-            std::process::exit(1);
-        });
-
-        MqttClient {
-            device_id,
-            address,
-            client: cli,
-            handlers: HashMap::new(),
-            data: RequestContext::new(),
-        }
-    }
+    // pub fn new(device_id: String, address: String) -> MqttClient {
+    //     let host = env::args()
+    //         .nth(1)
+    //         .unwrap_or_else(|| "mqtt://".to_string() + &address);
+    //
+    //     let create_opts = mqtt::CreateOptionsBuilder::new()
+    //         .server_uri(host)
+    //         .client_id(&device_id)
+    //         .finalize();
+    //
+    //     let cli = mqtt::AsyncClient::new(create_opts).unwrap_or_else(|e| {
+    //         eprintln!("Error creating the client: {:?}", e);
+    //         std::process::exit(1);
+    //     });
+    //
+    //     MqttClient {
+    //         device_id,
+    //         address,
+    //         client: cli,
+    //         handlers: HashMap::new(),
+    //         data: RequestContext::new(),
+    //     }
+    // }
 }
 
 impl MqttClientRepository for MqttClient {
@@ -92,7 +92,7 @@ impl MqttClientRepository for MqttClient {
         Ok(())
     }
     fn publish(&self, topic: &str, message: &str) -> anyhow::Result<()> {
-        &self.client.publish(Message::new(topic, message, 0));
+        self.client.publish(Message::new(topic, message, 0));
         Ok(())
     }
 
