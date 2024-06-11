@@ -11,6 +11,7 @@ pub async fn run() -> std::io::Result<()> {
             .service(handler::account::post_account)
             .service(handler::account::get_accounts)
             .service(handler::account::get_account)
+            .service(handler::account::put_account)
             .service(handler::account::delete_account)
             .service(handler::card::post_card)
             .service(handler::card::get_cards)

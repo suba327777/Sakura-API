@@ -1,7 +1,7 @@
 use super::super::database::models::{AccountEntity, NewAccountEntity};
 use crate::domain::object::account::{Account, AccountId};
 use crate::domain::repository::account::AccountRepository;
-use anyhow::Result;
+use anyhow;
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use diesel::r2d2::{ConnectionManager, Pool};
@@ -57,7 +57,7 @@ pub struct AccountRepositoryImpl {
 }
 
 impl AccountRepository for AccountRepositoryImpl {
-    fn insert(&self, account: &Account) -> Result<()> {
+    fn insert(&self, account: &Account) -> anyhow::Result<()> {
         use super::super::database::schema::account::dsl;
 
         let entity = NewAccountEntity::from(account);
@@ -69,7 +69,7 @@ impl AccountRepository for AccountRepositoryImpl {
         Ok(())
     }
 
-    fn list(&self) -> Result<Vec<Account>> {
+    fn list(&self) -> anyhow::Result<Vec<Account>> {
         use super::super::database::schema::account::dsl;
 
         let query = dsl::account.into_boxed();
@@ -79,7 +79,7 @@ impl AccountRepository for AccountRepositoryImpl {
         Ok(results.into_iter().map(|e| e.of()).collect())
     }
 
-    fn find_by_id(&self, account_id: &AccountId) -> Result<Account> {
+    fn find_by_id(&self, account_id: &AccountId) -> anyhow::Result<Account> {
         use super::super::database::schema::account::dsl;
         use super::super::database::schema::account::id;
 
@@ -91,7 +91,19 @@ impl AccountRepository for AccountRepositoryImpl {
         Ok(entity.of())
     }
 
-    fn delete(&self, account: &Account) -> Result<()> {
+    fn update(&self, account: &Account) -> anyhow::Result<()> {
+        use super::super::database::schema::account::dsl;
+
+        let mut conn = self.pool.get()?;
+        let entity = AccountEntity::from(account);
+        diesel::update(dsl::account.filter(dsl::id.eq(account.id.get())))
+            .set(&entity)
+            .execute(&mut conn)?;
+
+        Ok(())
+    }
+
+    fn delete(&self, account: &Account) -> anyhow::Result<()> {
         let entity = AccountEntity::from(account);
         let mut conn = self.pool.get()?;
         diesel::delete(&entity).execute(&mut conn)?;
