@@ -1,11 +1,10 @@
 #[macro_use]
 extern crate diesel;
 
-
 use crate::infrastructures::config::mqtt_config::MqttConfig;
 use anyhow::Error;
 
-use std::{thread};
+use std::thread;
 
 mod domain;
 mod infrastructures;
