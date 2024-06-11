@@ -1,7 +1,7 @@
+use crate::server::connection::RequestContext;
 use paho_mqtt::{self as mqtt, AsyncClient, AsyncReceiver, Message};
 use std::collections::HashMap;
 use std::sync::Arc;
-use crate::server::connection::RequestContext;
 
 pub trait MqttClientRepository {
     async fn connect(&mut self) -> anyhow::Result<()>;

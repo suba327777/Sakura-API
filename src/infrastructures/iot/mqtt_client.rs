@@ -1,11 +1,11 @@
 use crate::domain::repository::mqtt::client::{MessageHandler, MqttClientRepository};
+use crate::server::connection::RequestContext;
 use async_std::channel::Receiver;
 use futures::{executor::block_on, stream::StreamExt};
 use paho_mqtt::{self as mqtt, AsyncClient, AsyncReceiver, Message, MQTT_VERSION_5};
 use std::collections::HashMap;
 use std::env;
 use std::time::Duration;
-use crate::server::connection::RequestContext;
 
 #[allow(dead_code)]
 pub trait MessageListener: Fn(Message) + Send + Sync + 'static {}
@@ -42,7 +42,7 @@ impl MqttClient {
             address,
             client: cli,
             handlers: HashMap::new(),
-            data: RequestContext::new()
+            data: RequestContext::new(),
         }
     }
 }
@@ -60,8 +60,6 @@ impl MqttClientRepository for MqttClient {
             "[LWT] Async subscriber v5 lost connection",
             mqtt::QOS_1,
         );
-
-
 
         let conn_opts = mqtt::ConnectOptionsBuilder::with_mqtt_version(MQTT_VERSION_5)
             .clean_start(false)
@@ -98,7 +96,6 @@ impl MqttClientRepository for MqttClient {
         Ok(())
     }
 
-
     fn get_connection(&self) -> &AsyncClient {
         &self.client
     }
@@ -111,7 +108,7 @@ impl MqttClientRepository for MqttClient {
     //     &self.client.get_stream(25)
     // }
 
-    fn start(&mut self){
+    fn start(&mut self) {
         block_on(async {
             let mut strm = self.client.get_stream(25);
             // Just loop on incoming messages.
@@ -127,8 +124,7 @@ impl MqttClientRepository for MqttClient {
                     if let Some(handler) = handlers.get(msg.topic()) {
                         handler(&self.client, &msg, &self.data);
                     }
-                }
-                else {
+                } else {
                     println!("Lost connection. Attempting reconnect.");
                     while let Err(err) = self.client.reconnect().await {
                         println!("Error reconnecting: {}", err);

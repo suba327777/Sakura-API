@@ -3,9 +3,9 @@ extern crate diesel;
 
 use crate::domain::repository::mqtt::client::MqttClientRepository;
 use crate::infrastructures::config::mqtt_config::MqttConfig;
+use anyhow::Error;
 use std::collections::HashMap;
 use std::{result, thread};
-use anyhow::Error;
 
 mod domain;
 mod infrastructures;

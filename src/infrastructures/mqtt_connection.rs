@@ -1,10 +1,10 @@
 use crate::domain::repository::mqtt::client::MqttClientRepository;
 use crate::infrastructures::config::mqtt_config::MqttConfig;
 use crate::infrastructures::iot::mqtt_client::MqttClient;
+use crate::server::connection::RequestContext;
 use reqwest::Client;
 use std::collections::HashMap;
 use std::env;
-use crate::server::connection::RequestContext;
 
 pub struct MqttConnection {
     cfg: MqttConfig,
