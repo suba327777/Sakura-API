@@ -1,5 +1,5 @@
 use crate::server::connection::RequestContext;
-use paho_mqtt::{self as mqtt, AsyncClient, AsyncReceiver, Message};
+use paho_mqtt::{self as mqtt, AsyncClient, Message};
 use std::collections::HashMap;
 use std::sync::Arc;
 

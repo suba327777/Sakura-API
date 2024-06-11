@@ -4,7 +4,7 @@ use crate::domain::repository::card::CardRepository;
 use crate::domain::repository::mqtt::client::MqttClientRepository;
 use crate::infrastructures::config::mqtt_config::MqttConfig;
 use crate::server::connection::RequestContext;
-use anyhow::Context;
+
 use paho_mqtt::{AsyncClient, Message};
 use std::sync::Arc;
 
@@ -16,7 +16,7 @@ pub fn mqtt_register_listener(mqtt_client: &mut impl MqttClientRepository, cfg: 
         .subscribe(
             "test/test_message",
             Arc::new(
-                |client: &AsyncClient, msg: &Message, data: &RequestContext| {
+                |_client: &AsyncClient, msg: &Message, _data: &RequestContext| {
                     println!("Received message on {}: {}", msg.topic(), msg);
                 },
             ),
@@ -27,7 +27,7 @@ pub fn mqtt_register_listener(mqtt_client: &mut impl MqttClientRepository, cfg: 
         .subscribe(
             &cfg.key_state_publish_path,
             Arc::new(
-                |client: &AsyncClient, msg: &Message, data: &RequestContext| {
+                |_client: &AsyncClient, msg: &Message, _data: &RequestContext| {
                     println!("Received message on {}: {}", msg.topic(), msg);
                 },
             ),
@@ -44,7 +44,7 @@ pub fn mqtt_register_listener(mqtt_client: &mut impl MqttClientRepository, cfg: 
 
                     if !data
                         .card_repository()
-                        .find_by_card_number(&*card.id)
+                        .find_by_card_number(&card.id)
                         .unwrap()
                     {
                         println!("Card not found {:?}", card.id);

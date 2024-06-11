@@ -1,8 +1,8 @@
 use crate::domain::repository::mqtt::client::{MessageHandler, MqttClientRepository};
 use crate::server::connection::RequestContext;
-use async_std::channel::Receiver;
+
 use futures::{executor::block_on, stream::StreamExt};
-use paho_mqtt::{self as mqtt, AsyncClient, AsyncReceiver, Message, MQTT_VERSION_5};
+use paho_mqtt::{self as mqtt, AsyncClient, Message, MQTT_VERSION_5};
 use std::collections::HashMap;
 use std::env;
 use std::time::Duration;
@@ -32,7 +32,7 @@ impl MqttClient {
             .client_id(&device_id)
             .finalize();
 
-        let mut cli = mqtt::AsyncClient::new(create_opts).unwrap_or_else(|e| {
+        let cli = mqtt::AsyncClient::new(create_opts).unwrap_or_else(|e| {
             eprintln!("Error creating the client: {:?}", e);
             std::process::exit(1);
         });
