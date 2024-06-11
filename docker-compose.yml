@@ -1,0 +1,46 @@
+version: '3.9'
+
+services:
+  db:
+    #mac
+    # platform: linux/amd64
+    image: postgres:15
+    container_name: postgres
+    restart: always
+    ports:
+      - 5432:5432
+    command: -c 'max_connections=200'
+    environment:
+      POSTGRES_USER: sakura
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: sakura
+    volumes:
+      - ./docker/db-store:/var/lib/postgresql/data
+    networks:
+      - sakura-internal
+  main:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    working_dir: /app
+    volumes:
+      - .:/app
+      - .config.yaml:/app/Sakura-API
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgres://sakura:password@db:5432/sakura
+    networks:
+      - sakura-internal
+      - sakura-external
+
+volumes:
+  db-store:
+
+networks:
+  sakura-internal:
+    name: sakura-internal-network
+    external: false
+  sakura-external:
+    name: sakura-network
+    external: false
