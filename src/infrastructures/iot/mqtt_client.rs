@@ -5,6 +5,7 @@ use paho_mqtt::{self as mqtt, AsyncClient, AsyncReceiver, Message, MQTT_VERSION_
 use std::collections::HashMap;
 use std::env;
 use std::time::Duration;
+use crate::server::connection::RequestContext;
 
 #[allow(dead_code)]
 pub trait MessageListener: Fn(Message) + Send + Sync + 'static {}
@@ -17,6 +18,7 @@ pub struct MqttClient {
     pub address: String,
     pub client: AsyncClient,
     pub handlers: HashMap<String, MessageHandler>,
+    pub(crate) data: RequestContext,
 }
 
 impl MqttClient {
@@ -40,6 +42,7 @@ impl MqttClient {
             address,
             client: cli,
             handlers: HashMap::new(),
+            data: RequestContext::new()
         }
     }
 }
@@ -90,15 +93,11 @@ impl MqttClientRepository for MqttClient {
         self.handlers.insert(topic.to_string(), handler);
         Ok(())
     }
-
-    fn publish(&mut self, topic: &str, message: &str) -> Result<(), mqtt::Error> {
-        let mqtt_data = Message::new(topic, message, 0);
-        block_on(async { self.client.publish(mqtt_data).await }).map_err(|err| {
-            eprintln!("publish error: {}", err);
-            err
-        })?;
+    fn publish(&self, topic: &str, message: &str) -> anyhow::Result<()> {
+        &self.client.publish(Message::new(topic, message, 0));
         Ok(())
     }
+
 
     fn get_connection(&self) -> &AsyncClient {
         &self.client
@@ -126,7 +125,7 @@ impl MqttClientRepository for MqttClient {
                     println!("{}", msg);
                     let handlers = &self.handlers;
                     if let Some(handler) = handlers.get(msg.topic()) {
-                        handler(&msg);
+                        handler(&self.client, &msg, &self.data);
                     }
                 }
                 else {

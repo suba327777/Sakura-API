@@ -4,6 +4,7 @@ use crate::infrastructures::iot::mqtt_client::MqttClient;
 use reqwest::Client;
 use std::collections::HashMap;
 use std::env;
+use crate::server::connection::RequestContext;
 
 pub struct MqttConnection {
     cfg: MqttConfig,
@@ -33,6 +34,7 @@ impl MqttConnection {
             address: self.cfg.address.clone(),
             client: cli,
             handlers: HashMap::new(),
+            data: RequestContext::new(),
         }
     }
 }

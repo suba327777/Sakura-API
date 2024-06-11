@@ -7,7 +7,6 @@ use std::collections::HashMap;
 use std::{result, thread};
 use anyhow::Error;
 
-mod adapter;
 mod domain;
 mod infrastructures;
 mod server;
@@ -19,7 +18,6 @@ fn main() -> std::io::Result<()> {
     let cfg = confy::load_path::<MqttConfig>("./config.yaml")
         .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e.to_string()))?;
     thread::spawn(move || {
-
         let future = async move {
             println!("mqtt start");
             let con = infrastructures::mqtt_connection::MqttConnection::new(cfg.clone());

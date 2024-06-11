@@ -1,4 +1,4 @@
-use crate::adapter::mqtt_listener::mqtt_register_listener;
+use crate::server::handler::mqtt_listener::mqtt_register_listener;
 use crate::domain::repository::mqtt::client::{MessageHandler, MqttClientRepository};
 use crate::infrastructures::config::mqtt_config::MqttConfig;
 use async_std::channel::Receiver;
