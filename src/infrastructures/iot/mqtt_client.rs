@@ -118,24 +118,21 @@ impl MqttClientRepository for MqttClient {
             // Just loop on incoming messages.
             println!("Waiting for messages...");
 
-            // Note that we're not providing a way to cleanly shut down and
-            // disconnect. Therefore, when you kill this app (with a ^C or
-            // whatever) the server will get an unexpected drop and then
-            // should emit the LWT message.
-
             while let Some(msg_opt) = strm.next().await {
                 if let Some(msg) = msg_opt {
                     if msg.retained() {
                         print!("(R) ");
                     }
                     println!("{}", msg);
+                    let handlers = &self.handlers;
+                    if let Some(handler) = handlers.get(msg.topic()) {
+                        handler(&msg);
+                    }
                 }
                 else {
-                    // A "None" means we were disconnected. Try to reconnect...
                     println!("Lost connection. Attempting reconnect.");
                     while let Err(err) = self.client.reconnect().await {
                         println!("Error reconnecting: {}", err);
-                        // For tokio use: tokio::time::delay_for()
                         async_std::task::sleep(Duration::from_millis(1000)).await;
                     }
                 }

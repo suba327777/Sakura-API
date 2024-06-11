@@ -9,7 +9,10 @@ use std::time::Duration;
 
 pub async fn run(mut client: impl MqttClientRepository, cfg: MqttConfig) -> anyhow::Result<()> {
     client.connect().await?;
+    println!("connected");
     mqtt_register_listener(&mut client, cfg.clone());
+    println!("Register listeners");
     client.start();
+    println!("owari");
     Ok(())
 }

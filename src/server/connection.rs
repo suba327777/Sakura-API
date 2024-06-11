@@ -14,7 +14,7 @@ pub struct RequestContext {
 impl RequestContext {
     pub fn new() -> RequestContext {
         dotenv().ok();
-        let db_url = "postgres://sakura:password@localhost:5432/sakura";// env::var("DATABASE_URL").expect("DATABASE_URL i not set");
+        let db_url = env::var("DATABASE_URL").expect("DATABASE_URL i not set");
         let manager = ConnectionManager::<PgConnection>::new(db_url);
         let pool = Pool::builder()
             .build(manager)
