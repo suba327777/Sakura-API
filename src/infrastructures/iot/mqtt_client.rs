@@ -96,18 +96,6 @@ impl MqttClientRepository for MqttClient {
         Ok(())
     }
 
-    fn get_connection(&self) -> &AsyncClient {
-        &self.client
-    }
-
-    fn get_handlers(&self) -> &HashMap<String, MessageHandler> {
-        &self.handlers
-    }
-
-    // fn get_stream(&mut self) -> &AsyncReceiver<Option<Message>> {
-    //     &self.client.get_stream(25)
-    // }
-
     fn start(&mut self) {
         block_on(async {
             let mut strm = self.client.get_stream(25);

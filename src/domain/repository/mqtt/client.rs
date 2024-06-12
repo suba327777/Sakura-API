@@ -1,6 +1,5 @@
 use crate::server::connection::RequestContext;
 use paho_mqtt::{self as mqtt, AsyncClient, Message};
-use std::collections::HashMap;
 use std::sync::Arc;
 
 pub trait MqttClientRepository {
@@ -9,13 +8,9 @@ pub trait MqttClientRepository {
     fn subscribe(&mut self, topic: &str, handler: MessageHandler) -> Result<(), mqtt::Error>;
     fn publish(&self, topic: &str, message: &str) -> anyhow::Result<()>;
 
-    fn get_connection(&self) -> &paho_mqtt::AsyncClient;
-
-    fn get_handlers(&self) -> &HashMap<String, MessageHandler>;
 
     fn start(&mut self);
 
-    // fn get_stream(&mut self) -> &AsyncReceiver<Option<Message>>;
 }
 
 pub type MessageHandler = Arc<dyn Fn(&AsyncClient, &Message, &RequestContext) + Send + Sync>;
