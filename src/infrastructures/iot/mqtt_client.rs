@@ -1,14 +1,15 @@
-use crate::domain::repository::mqtt::client::{MessageHandler, MqttClientRepository};
-use crate::server::connection::RequestContext;
+use std::collections::HashMap;
+use std::time::Duration;
 
 use futures::{executor::block_on, stream::StreamExt};
 use paho_mqtt::{self as mqtt, AsyncClient, Message, MQTT_VERSION_5};
-use std::collections::HashMap;
 
-use std::time::Duration;
+use crate::domain::repository::mqtt::client::{MessageHandler, MqttClientRepository};
+use crate::server::connection::RequestContext;
 
 #[allow(dead_code)]
 pub trait MessageListener: Fn(Message) + Send + Sync + 'static {}
+
 impl<T> MessageListener for T where T: Fn(Message) + Send + Sync + 'static {}
 
 const TOPICS: &[&str] = &["test", "hello"];
@@ -91,6 +92,7 @@ impl MqttClientRepository for MqttClient {
         self.handlers.insert(topic.to_string(), handler);
         Ok(())
     }
+
     fn publish(&self, topic: &str, message: &str) -> anyhow::Result<()> {
         self.client.publish(Message::new(topic, message, 0));
         Ok(())

@@ -1,3 +1,7 @@
+use std::sync::Arc;
+
+use paho_mqtt::{AsyncClient, Message};
+
 use crate::domain::object::mqtt::door_state::DoorState;
 use crate::domain::object::mqtt::mqtt_card::MqttCard;
 use crate::domain::repository::card::CardRepository;
@@ -5,12 +9,9 @@ use crate::domain::repository::mqtt::client::MqttClientRepository;
 use crate::infrastructures::config::mqtt_config::MqttConfig;
 use crate::server::connection::RequestContext;
 
-use paho_mqtt::{AsyncClient, Message};
-use std::sync::Arc;
-
 pub fn mqtt_register_listener(mqtt_client: &mut impl MqttClientRepository, cfg: MqttConfig) {
     let cfg_clone = cfg.clone();
-    let device_id = cfg.device_id.clone(); // cfg.device_id をクローンして String を作
+    let device_id = cfg.device_id.clone();
 
     mqtt_client
         .subscribe(
