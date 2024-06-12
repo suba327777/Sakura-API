@@ -3,6 +3,7 @@ use std::sync::Arc;
 use paho_mqtt::{AsyncClient, Message};
 
 use crate::domain::object::mqtt::door_state::DoorState;
+use crate::domain::object::mqtt::door_switch_state::DoorSwitchState;
 use crate::domain::object::mqtt::mqtt_card::MqttCard;
 use crate::domain::repository::card::CardRepository;
 use crate::domain::repository::mqtt::client::MqttClientRepository;
@@ -26,7 +27,7 @@ pub fn mqtt_register_listener(mqtt_client: &mut impl MqttClientRepository, cfg: 
 
     mqtt_client
         .subscribe(
-            &cfg.key_state_publish_path,
+            &cfg.key_state_path,
             Arc::new(
                 |_client: &AsyncClient, msg: &Message, _data: &RequestContext| {
                     println!("Received message on {}: {}", msg.topic(), msg);
@@ -39,9 +40,16 @@ pub fn mqtt_register_listener(mqtt_client: &mut impl MqttClientRepository, cfg: 
         .subscribe(
             &cfg_clone.card_receive_path,
             Arc::new(
+                // curl mqtt://localhost:1883/card -d "{\"id\": [1, 2, 3, 4, 5], \"timestamp\": \"2024-06-11T10:00:00+09:00\", \"device_id\": \"device123\"}"
                 move |client: &AsyncClient, msg: &Message, data: &RequestContext| {
-                    let card: MqttCard = serde_json::from_str(&msg.payload_str()).unwrap();
-                    // curl mqtt://localhost:1883/card -d "{\"id\": [1, 2, 3, 4, 5], \"timestamp\": \"2024-06-11T10:00:00+09:00\", \"device_id\": \"device123\"}"
+                    let result = serde_json::from_str::<MqttCard>(&msg.payload_str());
+
+                    if let Err(e) = result {
+                        println!("Failed to parse Error: {}", e);
+                        return;
+                    }
+
+                    let card = result.unwrap();
 
                     if !data
                         .card_repository()
@@ -52,10 +60,10 @@ pub fn mqtt_register_listener(mqtt_client: &mut impl MqttClientRepository, cfg: 
                         return;
                     }
 
-                    let is_open = true; // 本来はデータベース等でチェック
+                    let is_open = true; // TODO: データベースでチェック
                     let open_state = DoorState {
                         device_id: device_id.clone(),
-                        open: is_open,
+                        is_open,
                         timestamp: chrono::offset::Local::now(),
                     };
 
@@ -65,8 +73,38 @@ pub fn mqtt_register_listener(mqtt_client: &mut impl MqttClientRepository, cfg: 
                     println!(": id        : {:?}", card.id);
                     println!(": device_id : {}", card.device_id);
                     println!(": timestamp : {}", card.timestamp);
-                    // TODO: publish mqtt server.
-                    client.publish(Message::new(&cfg.key_state_publish_path, json_str, 0));
+
+                    client.publish(Message::new(&cfg.key_state_path, json_str, 0));
+                },
+            ),
+        )
+        .unwrap();
+
+    mqtt_client
+        .subscribe(
+            &cfg.door_state_response_path,
+            Arc::new(
+                |_client: &AsyncClient, msg: &Message, _data: &RequestContext| {
+                    let result = serde_json::from_str::<DoorState>(&msg.payload_str());
+                    if let Err(e) = result {
+                        println!("Failed to parse Error: {}", e);
+                    }
+                    // TODO: insert or update database table
+                },
+            ),
+        )
+        .unwrap();
+
+    mqtt_client
+        .subscribe(
+            &cfg.door_switch_state_response_path,
+            Arc::new(
+                |_client: &AsyncClient, msg: &Message, _data: &RequestContext| {
+                    let result = serde_json::from_str::<DoorSwitchState>(&msg.payload_str());
+                    if let Err(e) = result {
+                        println!("Failed to parse Error: {}", e);
+                    }
+                    // TODO: insert or update database table
                 },
             ),
         )

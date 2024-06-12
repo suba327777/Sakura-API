@@ -1,7 +1,8 @@
 address: "mqtt:1883"
 device_id: "Sakura-API-test"
-card_receive_path: card
-key_state_publish_path: key/publish
-door_state_request_path: door/state-request
-door_state_response_path: door/state
-door_switch_state_request_path: door/switch-state
+card_receive_path: "card"
+key_state_path: "key"
+door_state_request_path: "door/state-request"
+door_state_response_path: "door/state"
+door_switch_state_request_path: "door/switch-state-request"
+door_switch_state_response_path: "door/switch-state"
