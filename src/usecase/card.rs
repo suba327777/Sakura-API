@@ -6,8 +6,8 @@ use crate::domain::repository::{account::AccountRepository, card::CardRepository
 use anyhow;
 
 pub fn post_card(
-    card_repository: &mut impl CardRepository,
-    account_repository: &mut impl AccountRepository,
+    card_repository: &impl CardRepository,
+    account_repository: &impl AccountRepository,
     card: &Card,
 ) -> anyhow::Result<()> {
     let account_id = &card.account_id;
@@ -21,8 +21,8 @@ pub fn post_card(
 }
 
 pub fn get_card_list(
-    card_repository: &mut impl CardRepository,
-    account_repository: &mut impl AccountRepository,
+    card_repository: &impl CardRepository,
+    account_repository: &impl AccountRepository,
     account_id: &AccountId,
 ) -> anyhow::Result<Vec<Card>> {
     match account_repository.find_by_id(account_id) {
@@ -35,8 +35,8 @@ pub fn get_card_list(
 }
 
 pub fn get_card(
-    card_repository: &mut impl CardRepository,
-    account_repository: &mut impl AccountRepository,
+    card_repository: &impl CardRepository,
+    account_repository: &impl AccountRepository,
     card_id: &CardId,
     account_id: &AccountId,
 ) -> anyhow::Result<Card> {
@@ -50,8 +50,8 @@ pub fn get_card(
 }
 
 pub fn delete_card(
-    card_repository: &mut impl CardRepository,
-    account_repository: &mut impl AccountRepository,
+    card_repository: &impl CardRepository,
+    account_repository: &impl AccountRepository,
     card_id: &CardId,
     account_id: &AccountId,
 ) -> anyhow::Result<()> {
@@ -82,11 +82,11 @@ mod tests {
 
     #[test]
     fn success_post_card() {
-        let mut account_repository = MockAccountRepository {
+        let account_repository = MockAccountRepository {
             pool: RefCell::new(HashMap::new()),
         };
 
-        let mut card_repository = MockCardRepository {
+        let card_repository = MockCardRepository {
             pool: RefCell::new(HashMap::new()),
         };
 
@@ -106,20 +106,20 @@ mod tests {
             created_at: Local::now().naive_local(),
         };
 
-        let _ = post_account(&mut account_repository, &test_account);
+        let _ = post_account(&account_repository, &test_account);
 
-        let result = post_card(&mut card_repository, &mut account_repository, &test_card);
+        let result = post_card(&card_repository, &account_repository, &test_card);
 
         assert!(result.is_ok());
     }
 
     #[test]
     fn success_get_cards() {
-        let mut account_repository = MockAccountRepository {
+        let account_repository = MockAccountRepository {
             pool: RefCell::new(HashMap::new()),
         };
 
-        let mut card_repository = MockCardRepository {
+        let card_repository = MockCardRepository {
             pool: RefCell::new(HashMap::new()),
         };
 
@@ -152,11 +152,7 @@ mod tests {
         let _ = card_repository.insert(&test_card);
         let _ = card_repository.insert(&test_card2);
 
-        let result = get_card_list(
-            &mut card_repository,
-            &mut account_repository,
-            &test_card.account_id,
-        );
+        let result = get_card_list(&card_repository, &account_repository, &test_card.account_id);
 
         let cards = result.unwrap();
         assert_eq!(cards.len(), 2);
@@ -164,11 +160,11 @@ mod tests {
 
     #[test]
     fn success_get_card() {
-        let mut account_repository = MockAccountRepository {
+        let account_repository = MockAccountRepository {
             pool: RefCell::new(HashMap::new()),
         };
 
-        let mut card_repository = MockCardRepository {
+        let card_repository = MockCardRepository {
             pool: RefCell::new(HashMap::new()),
         };
 
@@ -191,8 +187,8 @@ mod tests {
         let _ = card_repository.insert(&test_card);
 
         let result = get_card(
-            &mut card_repository,
-            &mut account_repository,
+            &card_repository,
+            &account_repository,
             &test_card.id,
             &test_account.id,
         );
@@ -286,11 +282,11 @@ mod tests {
 
     #[test]
     fn success_delete_card() {
-        let mut account_repository = MockAccountRepository {
+        let account_repository = MockAccountRepository {
             pool: RefCell::new(HashMap::new()),
         };
 
-        let mut card_repository: MockCardRepository = MockCardRepository {
+        let card_repository: MockCardRepository = MockCardRepository {
             pool: RefCell::new(HashMap::new()),
         };
 
@@ -313,15 +309,15 @@ mod tests {
         let _ = card_repository.insert(&test_card);
 
         let _ = delete_card(
-            &mut card_repository,
-            &mut account_repository,
+            &card_repository,
+            &account_repository,
             &test_card.id,
             &test_account.id,
         );
 
         assert!(get_card(
-            &mut card_repository,
-            &mut account_repository,
+            &card_repository,
+            &account_repository,
             &test_card.id,
             &test_account.id,
         )
