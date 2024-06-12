@@ -1,8 +1,8 @@
 #[macro_use]
 extern crate diesel;
 
-use crate::infrastructures::config::mqtt_config::MqttConfig;
 use crate::domain::repository::mqtt::client::MqttClientRepository;
+use crate::infrastructures::config::mqtt_config::MqttConfig;
 
 use anyhow::Error;
 
@@ -27,7 +27,9 @@ fn main() -> std::io::Result<()> {
                 eprintln!("ERROR: {}", e);
                 return Err(e);
             }
-            con.mqtt_client_repository().disconnect().expect("TODO: panic message");
+            con.mqtt_client_repository()
+                .disconnect()
+                .expect("TODO: panic message");
             println!("mqtt end");
             Ok::<(), Error>(())
         };

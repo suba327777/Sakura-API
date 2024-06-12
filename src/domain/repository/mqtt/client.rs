@@ -8,9 +8,7 @@ pub trait MqttClientRepository {
     fn subscribe(&mut self, topic: &str, handler: MessageHandler) -> Result<(), mqtt::Error>;
     fn publish(&self, topic: &str, message: &str) -> anyhow::Result<()>;
 
-
     fn start(&mut self);
-
 }
 
 pub type MessageHandler = Arc<dyn Fn(&AsyncClient, &Message, &RequestContext) + Send + Sync>;
