@@ -42,6 +42,7 @@ impl AccountRepository for MockAccountRepository {
 
     fn delete(&self, account: &Account) -> anyhow::Result<()> {
         let _ = &self.pool.borrow_mut().remove(&account.id.get());
+        //TODO: So that if the account is deleted, the card associated with it is also deleted.
         Ok(())
     }
 }

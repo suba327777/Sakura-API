@@ -10,7 +10,7 @@ async fn post_account(
     data: web::Data<RequestContext>,
     request: Json<AccountRequest>,
 ) -> impl Responder {
-    match usecase::account::post_account(&mut data.account_repository(), &request.of()) {
+    match usecase::account::post_account(&data.account_repository(), &request.of()) {
         Ok(_) => HttpResponse::NoContent().finish(),
         Err(err) => {
             HttpResponse::InternalServerError().json(format!("Internal Server Error {}", err))
@@ -20,7 +20,7 @@ async fn post_account(
 
 #[get("/accounts")]
 async fn get_accounts(data: web::Data<RequestContext>) -> impl Responder {
-    match usecase::account::get_account_list(&mut data.account_repository()) {
+    match usecase::account::get_account_list(&data.account_repository()) {
         Ok(accounts) => HttpResponse::Ok().json(AccountListResopnse::new(accounts)),
         Err(err) => {
             HttpResponse::InternalServerError().json(format!("Internal Server Error {}", err))
@@ -34,7 +34,7 @@ async fn get_account(
     path_params: web::Path<(i64,)>,
 ) -> impl Responder {
     let account_id = AccountId::new(path_params.into_inner().0);
-    match usecase::account::get_account(&mut data.account_repository(), &account_id) {
+    match usecase::account::get_account(&data.account_repository(), &account_id) {
         Ok(account) => HttpResponse::Ok().json(AccountDto::new(&account)),
         Err(err) => {
             HttpResponse::InternalServerError().json(format!("Internal Server Error {}", err))
@@ -49,7 +49,7 @@ async fn put_account(
     path_params: web::Path<(i64,)>,
 ) -> impl Responder {
     let account_id = AccountId::new(path_params.into_inner().0);
-    match usecase::account::put_account(&mut data.account_repository(), &request, &account_id) {
+    match usecase::account::put_account(&data.account_repository(), &request, &account_id) {
         Ok(_) => HttpResponse::Ok().finish(),
         Err(err) => {
             HttpResponse::InternalServerError().json(format!("Internal Server Error {}", err))
@@ -63,7 +63,7 @@ async fn delete_account(
     path_params: web::Path<(i64,)>,
 ) -> impl Responder {
     let account_id = AccountId::new(path_params.into_inner().0);
-    match usecase::account::delete_account(&mut data.account_repository(), &account_id) {
+    match usecase::account::delete_account(&data.account_repository(), &account_id) {
         Ok(_) => HttpResponse::NoContent().finish(),
         Err(err) => {
             HttpResponse::InternalServerError().json(format!("Internal Server Error {}", err))

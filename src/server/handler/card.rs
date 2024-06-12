@@ -8,8 +8,8 @@ use actix_web::{delete, get, post, web, web::Json, HttpResponse, Responder};
 #[post("/cards")]
 async fn post_card(data: web::Data<RequestContext>, request: Json<CardRequest>) -> impl Responder {
     match usecase::card::post_card(
-        &mut data.card_repository(),
-        &mut data.account_repository(),
+        &data.card_repository(),
+        &data.account_repository(),
         &request.of(),
     ) {
         Ok(_) => HttpResponse::Ok().finish(),
@@ -26,8 +26,8 @@ async fn get_cards(
 ) -> impl Responder {
     let account_id = AccountId::new(request.account_id);
     match usecase::card::get_card_list(
-        &mut data.card_repository(),
-        &mut data.account_repository(),
+        &data.card_repository(),
+        &data.account_repository(),
         &account_id,
     ) {
         Ok(cards) => HttpResponse::Ok().json(CardListResponse::new(cards)),
@@ -46,8 +46,8 @@ async fn get_card(
     let account_id = AccountId::new(request.account_id);
     let card_id = CardId::new(path_params.into_inner().0);
     match usecase::card::get_card(
-        &mut data.card_repository(),
-        &mut data.account_repository(),
+        &data.card_repository(),
+        &data.account_repository(),
         &card_id,
         &account_id,
     ) {
@@ -67,8 +67,8 @@ async fn delete_card(
     let account_id = AccountId::new(request.account_id);
     let card_id = CardId::new(path_params.into_inner().0);
     match usecase::card::delete_card(
-        &mut data.card_repository(),
-        &mut data.account_repository(),
+        &data.card_repository(),
+        &data.account_repository(),
         &card_id,
         &account_id,
     ) {
