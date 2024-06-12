@@ -104,10 +104,20 @@ impl AccountRepository for AccountRepositoryImpl {
     }
 
     fn delete(&self, account: &Account) -> anyhow::Result<()> {
+        use super::super::database::schema::account::dsl as account_dsl;
+        use super::super::database::schema::card::dsl as card_dsl;
+
         let entity = AccountEntity::from(account);
         let mut conn = self.pool.get()?;
-        diesel::delete(&entity).execute(&mut conn)?;
 
-        Ok(())
+        conn.transaction::<_, anyhow::Error, _>(|conn| {
+            diesel::delete(card_dsl::card.filter(card_dsl::account_id.eq(entity.id)))
+                .execute(conn)?;
+
+            diesel::delete(account_dsl::account.filter(account_dsl::id.eq(entity.id)))
+                .execute(conn)?;
+
+            Ok(())
+        })
     }
 }
