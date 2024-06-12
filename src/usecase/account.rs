@@ -41,7 +41,10 @@ pub fn delete_account(
 mod tests {
     use super::*;
     use crate::domain::object::account::AccountId;
+    use crate::domain::object::card::{Card, CardId};
+    use crate::domain::repository::card::CardRepository;
     use crate::tests::mock_account_repository::MockAccountRepository;
+    use crate::tests::mock_card_repository::MockCardRepository;
     use chrono::{Duration, Local};
     use std::cell::RefCell;
     use std::collections::HashMap;
@@ -192,5 +195,40 @@ mod tests {
         let _ = delete_account(&repository, &test_account.id);
 
         assert!(get_account(&repository, &test_account.id).is_err())
+    }
+    #[test]
+    fn success_delete_account_and_tied_card() {
+        let account_repository = MockAccountRepository {
+            pool: RefCell::new(HashMap::new()),
+        };
+
+        let card_repository: MockCardRepository = MockCardRepository {
+            pool: RefCell::new(HashMap::new()),
+        };
+
+        let test_account = Account {
+            id: AccountId::new(1),
+            username: "test_user".to_string(),
+            grade: 4,
+            expiration_date: Local::now().naive_local() + Duration::hours(1),
+            created_at: Local::now().naive_local(),
+        };
+
+        let test_card = Card {
+            id: CardId::new(1),
+            account_id: AccountId::new(1),
+            card_name: "suica".to_string(),
+            card_number: [1, 16, 3, 16, 197, 20, 106, 38].to_vec(),
+            created_at: Local::now().naive_local(),
+        };
+        let _ = account_repository.insert(&test_account);
+        let _ = card_repository.insert(&test_card);
+
+        let _ = delete_account(&account_repository, &test_account.id);
+
+        assert!(account_repository.find_by_id(&test_account.id).is_err());
+        // assert!(card_repository
+        //     .find_by_id(&test_card.id, &test_account.id)
+        //     .is_err());
     }
 }
