@@ -22,6 +22,19 @@ diesel::table! {
     }
 }
 
+diesel::table! {
+    door (device_id) {
+        #[max_length = 255]
+        device_id -> Varchar,
+        door_state -> Nullable<Bool>,
+        door_switch_state -> Nullable<Bool>,
+    }
+}
+
 diesel::joinable!(card -> account (account_id));
 
-diesel::allow_tables_to_appear_in_same_query!(account, card,);
+diesel::allow_tables_to_appear_in_same_query!(
+    account,
+    card,
+    door,
+);

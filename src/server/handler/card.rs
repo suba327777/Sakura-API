@@ -1,11 +1,13 @@
-use super::super::request::{account::AccountIdRequest, card::CardRequest};
-use super::super::response::card::{CardDto, CardListResponse};
+use actix_web::{delete, get, HttpResponse, post, Responder, web, web::Json};
+
 use crate::domain::object::{account::AccountId, card::CardId};
 use crate::server::connection::RequestContext;
 use crate::usecase;
-use actix_web::{delete, get, post, web, web::Json, HttpResponse, Responder};
 
-#[post("/cards")]
+use super::super::request::{account::AccountIdRequest, card::CardRequest};
+use super::super::response::card::{CardDto, CardListResponse};
+
+#[post("/door")]
 async fn post_card(data: web::Data<RequestContext>, request: Json<CardRequest>) -> impl Responder {
     match usecase::card::post_card(
         &data.card_repository(),
