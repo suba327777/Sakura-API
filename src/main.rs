@@ -2,6 +2,8 @@
 extern crate diesel;
 
 use crate::infrastructures::config::mqtt_config::MqttConfig;
+use crate::domain::repository::mqtt::client::MqttClientRepository;
+
 use anyhow::Error;
 
 use std::thread;
@@ -16,6 +18,7 @@ mod utils;
 fn main() -> std::io::Result<()> {
     let cfg = confy::load_path::<MqttConfig>("./config.yaml")
         .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e.to_string()))?;
+
     thread::spawn(move || {
         let future = async move {
             println!("mqtt start");
@@ -24,6 +27,7 @@ fn main() -> std::io::Result<()> {
                 eprintln!("ERROR: {}", e);
                 return Err(e);
             }
+            con.mqtt_client_repository().disconnect().expect("TODO: panic message");
             println!("mqtt end");
             Ok::<(), Error>(())
         };
