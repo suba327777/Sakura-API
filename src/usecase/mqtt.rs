@@ -9,7 +9,7 @@ pub async fn run(mut client: impl MqttClientRepository, cfg: MqttConfig) -> anyh
     println!("Register listeners");
     client
         .publish("test/test_message", "API UP")
-        .expect("TODO: panic message");
+        .expect("failed publish message");
     client.start();
     Ok(())
 }
