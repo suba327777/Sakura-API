@@ -1,5 +1,7 @@
 use std::sync::Arc;
 
+use base64::Engine;
+use base64::engine::general_purpose;
 use paho_mqtt::{AsyncClient, Message};
 
 use crate::domain::object::mqtt::door_state::DoorState;
@@ -50,13 +52,14 @@ pub fn mqtt_register_listener(mqtt_client: &mut impl MqttClientRepository, cfg: 
                     }
 
                     let card = result.unwrap();
+                    let decoded_id = general_purpose::STANDARD.decode(card.id).unwrap();
 
                     if !data
                         .card_repository()
-                        .find_by_card_number(&card.id)
+                        .find_by_card_number(&decoded_id)
                         .unwrap()
                     {
-                        println!("Card not found {:?}", card.id);
+                        println!("Card not found {:?}", decoded_id);
                         return;
                     }
 
@@ -70,7 +73,7 @@ pub fn mqtt_register_listener(mqtt_client: &mut impl MqttClientRepository, cfg: 
                     let json_str = serde_json::to_string(&open_state).unwrap();
 
                     println!("Received message on {}", msg.topic());
-                    println!(": id        : {:?}", card.id);
+                    println!(": id        : {:?}", decoded_id);
                     println!(": device_id : {}", card.device_id);
                     println!(": timestamp : {}", card.timestamp);
 
