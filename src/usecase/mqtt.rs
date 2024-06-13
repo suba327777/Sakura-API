@@ -55,6 +55,7 @@ pub fn check_card(
         .find_by_device_id(card.device_id.clone());
 
     if let Err(e) = result {
+        println!("Error: {}", e);
         _data
             .door_repository()
             .insert(
@@ -71,22 +72,8 @@ pub fn check_card(
             )
             .expect("TODO: panic message");
 
-        let door_state_request = DoorState {
-            device_id: card.device_id.clone(),
-            is_open,
-            timestamp: chrono::offset::Local::now(),
-        };
-        let door_switch_request = DoorState {
-            device_id: card.device_id.clone(),
-            is_open,
-            timestamp: chrono::offset::Local::now(),
-        };
-
-        let door_json_str = serde_json::to_string(&door_state_request).unwrap();
-        let door_switch_json_str = serde_json::to_string(&door_switch_request).unwrap();
-
-        _client.publish(Message::new(door_state_path, door_json_str, 0));
-        _client.publish(Message::new(door_switch_state_path, door_switch_json_str, 0));
+        request_door_States(_client, card.device_id, door_state_path, door_switch_state_path);
+        return
     }
 
     let is_open = true; // TODO: データベースでチェック
@@ -104,4 +91,23 @@ pub fn check_card(
     println!(": timestamp : {}", card.timestamp);
 
     _client.publish(Message::new(key_state_path, json_str, 0));
+}:
+
+pub fn request_door_States(client: &AsyncClient, device_id: String, door_state_path: String, door_switch_state_path: String){
+    let door_state_request = DoorState {
+        device_id: device_id.clone(),
+        is_open: true,
+        timestamp: chrono::offset::Local::now(),
+    };
+    let door_switch_request = DoorState {
+        device_id: device_id.clone(),
+        is_open: true,
+        timestamp: chrono::offset::Local::now(),
+    };
+
+    let door_json_str = serde_json::to_string(&door_state_request).unwrap();
+    let door_switch_json_str = serde_json::to_string(&door_switch_request).unwrap();
+
+    client.publish(Message::new(door_state_path, door_json_str, 0));
+    client.publish(Message::new(door_switch_state_path, door_switch_json_str, 0));
 }
