@@ -1,5 +1,5 @@
-use base64::Engine;
 use base64::engine::general_purpose;
+use base64::Engine;
 use paho_mqtt::{AsyncClient, Message};
 
 use crate::domain::object::mqtt::door_state::DoorState;
@@ -73,7 +73,12 @@ pub fn check_card(
             )
             .expect("TODO: panic message");
 
-        request_door_states(_client, card.device_id, door_state_path, door_switch_state_path);
+        request_door_states(
+            _client,
+            card.device_id,
+            door_state_path,
+            door_switch_state_path,
+        );
         return;
     }
 
@@ -94,7 +99,12 @@ pub fn check_card(
     _client.publish(Message::new(key_state_path, json_str, 0));
 }
 
-pub fn request_door_states(client: &AsyncClient, device_id: String, door_state_path: String, door_switch_state_path: String) {
+pub fn request_door_states(
+    client: &AsyncClient,
+    device_id: String,
+    door_state_path: String,
+    door_switch_state_path: String,
+) {
     let door_state_request = DoorState {
         device_id: device_id.clone(),
         is_open: true,
@@ -110,5 +120,9 @@ pub fn request_door_states(client: &AsyncClient, device_id: String, door_state_p
     let door_switch_json_str = serde_json::to_string(&door_switch_request).unwrap();
 
     client.publish(Message::new(door_state_path, door_json_str, 0));
-    client.publish(Message::new(door_switch_state_path, door_switch_json_str, 0));
+    client.publish(Message::new(
+        door_switch_state_path,
+        door_switch_json_str,
+        0,
+    ));
 }

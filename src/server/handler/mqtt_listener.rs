@@ -43,7 +43,14 @@ pub fn mqtt_register_listener(mqtt_client: &mut impl MqttClientRepository, cfg: 
                     let key_state_path = cfg.key_state_path.clone();
                     let door_state_request_path = cfg.door_state_request_path.clone();
                     let door_switch_state_request_path = cfg.door_switch_state_request_path.clone();
-                    usecase::mqtt::check_card(client, msg, data, key_state_path, door_state_request_path, door_switch_state_request_path);
+                    usecase::mqtt::check_card(
+                        client,
+                        msg,
+                        data,
+                        key_state_path,
+                        door_state_request_path,
+                        door_switch_state_request_path,
+                    );
                 },
             ),
         )

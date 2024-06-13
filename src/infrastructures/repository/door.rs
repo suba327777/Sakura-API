@@ -78,7 +78,7 @@ impl DoorRepository for DoorRepositoryImpl {
 
     fn find_by_device_id(&self, _device_id: String) -> anyhow::Result<Door> {
         #[allow(unused_imports)]
-        use super::super::database::schema::door::{dsl, device_id};
+        use super::super::database::schema::door::{device_id, dsl};
 
         let mut conn = self.pool.get()?;
         let entity: DoorEntity = dsl::door
@@ -87,5 +87,4 @@ impl DoorRepository for DoorRepositoryImpl {
 
         Ok(entity.of())
     }
-
 }

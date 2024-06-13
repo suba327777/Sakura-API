@@ -1,4 +1,3 @@
-
 #[derive(Debug, Clone, Hash, PartialEq, Eq)]
 pub struct Door {
     pub device_id: String,
