@@ -62,10 +62,10 @@ pub fn mqtt_register_listener(mqtt_client: &mut impl MqttClientRepository, cfg: 
             Arc::new(
                 |_client: &AsyncClient, msg: &Message, _data: &RequestContext| {
                     let result = serde_json::from_str::<DoorState>(&msg.payload_str());
-                    if let Err(e) = result {
+                    if let Err(ref e) = result {
                         println!("Failed to parse Error: {}", e);
                     }
-                    // TODO: insert or update database table
+                    usecase::mqtt::update_door_state(_data, result.unwrap());
                 },
             ),
         )
@@ -77,10 +77,10 @@ pub fn mqtt_register_listener(mqtt_client: &mut impl MqttClientRepository, cfg: 
             Arc::new(
                 |_client: &AsyncClient, msg: &Message, _data: &RequestContext| {
                     let result = serde_json::from_str::<DoorSwitchState>(&msg.payload_str());
-                    if let Err(e) = result {
+                    if let Err(ref e) = result {
                         println!("Failed to parse Error: {}", e);
                     }
-                    // TODO: insert or update database table
+                    usecase::mqtt::update_door_switch_state(_data, result.unwrap());
                 },
             ),
         )
