@@ -7,7 +7,7 @@ use crate::usecase;
 use super::super::request::{account::AccountIdRequest, card::CardRequest};
 use super::super::response::card::{CardDto, CardListResponse};
 
-#[post("/card")]
+#[post("/cards")]
 async fn post_card(data: web::Data<RequestContext>, request: Json<CardRequest>) -> impl Responder {
     match usecase::card::post_card(
         &data.card_repository(),
