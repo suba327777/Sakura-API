@@ -10,8 +10,7 @@ pub trait DoorRepository {
         door_state: DoorState,
         door_switch_state: DoorSwitchState,
     ) -> anyhow::Result<()>;
+    #[allow(dead_code)]
     fn status_update(&self, door: Door) -> anyhow::Result<()>;
     fn find_by_device_id(&self, device_id: String) -> anyhow::Result<Door>;
-    fn list(&self) -> anyhow::Result<Vec<Door>>;
-    fn delete(&self, card: &Door) -> anyhow::Result<()>;
 }

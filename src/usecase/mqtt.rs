@@ -28,6 +28,8 @@ pub fn check_card(
     msg: &Message,
     _data: &RequestContext,
     key_state_path: String,
+    door_state_path: String,
+    door_switch_state_path: String,
 ) {
     let result = serde_json::from_str::<MqttCard>(&msg.payload_str());
 
@@ -68,6 +70,23 @@ pub fn check_card(
                 },
             )
             .expect("TODO: panic message");
+
+        let door_state_request = DoorState {
+            device_id: card.device_id.clone(),
+            is_open,
+            timestamp: chrono::offset::Local::now(),
+        };
+        let door_switch_request = DoorState {
+            device_id: card.device_id.clone(),
+            is_open,
+            timestamp: chrono::offset::Local::now(),
+        };
+
+        let door_json_str = serde_json::to_string(&door_state_request).unwrap();
+        let door_switch_json_str = serde_json::to_string(&door_switch_request).unwrap();
+
+        _client.publish(Message::new(door_state_path, door_json_str, 0));
+        _client.publish(Message::new(door_switch_state_path, door_switch_json_str, 0));
     }
 
     let is_open = true; // TODO: データベースでチェック

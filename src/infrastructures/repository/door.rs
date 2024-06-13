@@ -76,22 +76,15 @@ impl DoorRepository for DoorRepositoryImpl {
         Ok(())
     }
 
-    fn find_by_device_id(&self, device_id: String) -> anyhow::Result<Door> {
-        use super::super::database::schema::door::{device_id, dsl};
+    fn find_by_device_id(&self, _device_id: String) -> anyhow::Result<Door> {
+        use super::super::database::schema::door::{dsl, device_id};
 
         let mut conn = self.pool.get()?;
         let entity: DoorEntity = dsl::door
-            .filter(dsl::device_id.eq(device_id))
+            .filter(dsl::device_id.eq(_device_id))
             .get_result(&mut conn)?;
 
         Ok(entity.of())
     }
 
-    fn list(&self) -> anyhow::Result<Vec<Door>> {
-        todo!()
-    }
-
-    fn delete(&self, card: &Door) -> anyhow::Result<()> {
-        todo!()
-    }
 }

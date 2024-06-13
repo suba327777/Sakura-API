@@ -1,6 +1,3 @@
-use crate::domain::object::Id;
-
-pub type CardId = Id<crate::domain::object::card::Card>;
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq)]
 pub struct Door {
@@ -10,6 +7,7 @@ pub struct Door {
 }
 
 impl crate::domain::object::door::Door {
+    #[allow(dead_code)]
     pub fn new(device_id: String, door_state: bool, door_switch_state: bool) -> Self {
         Self {
             device_id,

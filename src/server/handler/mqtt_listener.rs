@@ -11,8 +11,9 @@ use crate::usecase;
 
 pub fn mqtt_register_listener(mqtt_client: &mut impl MqttClientRepository, cfg: MqttConfig) {
     let cfg_clone = cfg.clone();
-    let device_id = cfg.device_id.clone();
     let key_state_path = cfg.key_state_path.clone();
+    let door_state_request_path = cfg.door_state_request_path.clone();
+    let door_switch_state_request_path = cfg.door_switch_state_request_path.clone();
     mqtt_client
         .subscribe(
             "test/test_message",
@@ -41,7 +42,7 @@ pub fn mqtt_register_listener(mqtt_client: &mut impl MqttClientRepository, cfg: 
             Arc::new(
                 // curl mqtt://localhost:1883/card -d "{\"id\": [1, 2, 3, 4, 5], \"timestamp\": \"2024-06-11T10:00:00+09:00\", \"device_id\": \"device123\"}"
                 move |client: &AsyncClient, msg: &Message, data: &RequestContext| {
-                    usecase::mqtt::check_card(client, msg, data, key_state_path.clone());
+                    usecase::mqtt::check_card(client, msg, data, key_state_path, door_state_request_path, door_switch_state_request_path);
                 },
             ),
         )
