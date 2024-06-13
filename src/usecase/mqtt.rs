@@ -1,3 +1,7 @@
+use base64::Engine;
+use base64::engine::general_purpose;
+use paho_mqtt::{AsyncClient, Message};
+
 use crate::domain::object::mqtt::door_state::DoorState;
 use crate::domain::object::mqtt::door_switch_state::DoorSwitchState;
 use crate::domain::object::mqtt::mqtt_card::MqttCard;
@@ -7,9 +11,6 @@ use crate::domain::repository::mqtt::client::MqttClientRepository;
 use crate::infrastructures::config::mqtt_config::MqttConfig;
 use crate::server::connection::RequestContext;
 use crate::server::handler::mqtt_listener::mqtt_register_listener;
-use base64::engine::general_purpose;
-use base64::Engine;
-use paho_mqtt::{AsyncClient, Message};
 
 pub async fn run(mut client: impl MqttClientRepository, cfg: MqttConfig) -> anyhow::Result<()> {
     client.connect().await?;
@@ -72,8 +73,8 @@ pub fn check_card(
             )
             .expect("TODO: panic message");
 
-        request_door_States(_client, card.device_id, door_state_path, door_switch_state_path);
-        return
+        request_door_states(_client, card.device_id, door_state_path, door_switch_state_path);
+        return;
     }
 
     let is_open = true; // TODO: データベースでチェック
@@ -91,9 +92,9 @@ pub fn check_card(
     println!(": timestamp : {}", card.timestamp);
 
     _client.publish(Message::new(key_state_path, json_str, 0));
-}:
+}
 
-pub fn request_door_States(client: &AsyncClient, device_id: String, door_state_path: String, door_switch_state_path: String){
+pub fn request_door_states(client: &AsyncClient, device_id: String, door_state_path: String, door_switch_state_path: String) {
     let door_state_request = DoorState {
         device_id: device_id.clone(),
         is_open: true,
