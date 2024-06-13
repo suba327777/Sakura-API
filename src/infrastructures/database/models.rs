@@ -1,5 +1,6 @@
-use super::super::database::schema::*;
 use chrono::NaiveDateTime;
+
+use super::super::database::schema::*;
 
 #[derive(Debug, Insertable)]
 #[table_name = "account"]
@@ -37,4 +38,20 @@ pub struct CardEntity {
     pub card_name: String,
     pub card_number: Vec<u8>,
     pub created_at: NaiveDateTime,
+}
+
+#[derive(Debug, Insertable)]
+#[table_name = "door"]
+pub struct NewDoorEntity {
+    pub device_id: String,
+    pub door_state: bool,
+    pub door_switch_state: bool,
+}
+
+#[derive(Debug, Queryable, AsChangeset, Insertable)]
+#[table_name = "door"]
+pub struct DoorEntity {
+    pub device_id: String,
+    pub door_state: bool,
+    pub door_switch_state: bool,
 }

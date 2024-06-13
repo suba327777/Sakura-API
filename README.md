@@ -10,3 +10,11 @@
 Project Page **[Sakura](https://github.com/niwaniwa/Project-Sakura)**
 
 ## 💉 Dependence
+
+- 
+
+## example
+### card touch receive test
+```
+curl -d '{"id":"AQIDBA==","timestamp":"2024-05-10T15:04:05Z","deviceID":"12345abcde"}' mqtt://localhost:1883/card
+```

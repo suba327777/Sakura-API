@@ -1,11 +1,15 @@
-use crate::domain::repository::account::AccountRepository;
-use crate::domain::repository::card::CardRepository;
-use crate::infrastructures::repository::account::AccountRepositoryImpl;
-use crate::infrastructures::repository::card::CardRepositoryImpl;
+use std::env;
+
 use diesel::prelude::*;
 use diesel::r2d2::{ConnectionManager, Pool};
 use dotenv::dotenv;
-use std::env;
+
+use crate::domain::repository::account::AccountRepository;
+use crate::domain::repository::card::CardRepository;
+use crate::domain::repository::door::DoorRepository;
+use crate::infrastructures::repository::account::AccountRepositoryImpl;
+use crate::infrastructures::repository::card::CardRepositoryImpl;
+use crate::infrastructures::repository::door::DoorRepositoryImpl;
 
 pub struct RequestContext {
     pool: Pool<ConnectionManager<PgConnection>>,
@@ -30,6 +34,12 @@ impl RequestContext {
     }
     pub fn card_repository(&self) -> impl CardRepository {
         CardRepositoryImpl {
+            pool: Box::new(self.pool.to_owned()),
+        }
+    }
+
+    pub fn door_repository(&self) -> impl DoorRepository {
+        DoorRepositoryImpl {
             pool: Box::new(self.pool.to_owned()),
         }
     }

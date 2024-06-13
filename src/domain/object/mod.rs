@@ -1,9 +1,11 @@
-use serde::{Deserialize, Deserializer, Serialize};
 use std::marker::PhantomData;
+
+use serde::{Deserialize, Deserializer, Serialize};
 
 pub mod account;
 pub mod card;
-mod mqtt;
+pub mod door;
+pub mod mqtt;
 
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, Serialize)]
 pub struct Id<T> {
