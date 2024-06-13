@@ -33,8 +33,4 @@ diesel::table! {
 
 diesel::joinable!(card -> account (account_id));
 
-diesel::allow_tables_to_appear_in_same_query!(
-    account,
-    card,
-    door,
-);
+diesel::allow_tables_to_appear_in_same_query!(account, card, door,);

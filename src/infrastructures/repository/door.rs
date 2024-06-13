@@ -1,14 +1,12 @@
 use diesel::prelude::*;
 use diesel::r2d2::{ConnectionManager, Pool};
 use diesel::PgConnection;
-use crate::domain::object::account::AccountId;
-use crate::domain::object::card::{Card, CardId};
 
 use crate::domain::object::door::Door;
 use crate::domain::object::mqtt::door_state::DoorState;
 use crate::domain::object::mqtt::door_switch_state::DoorSwitchState;
 use crate::domain::repository::door::DoorRepository;
-use crate::infrastructures::database::models::{CardEntity, DoorEntity, NewDoorEntity};
+use crate::infrastructures::database::models::{DoorEntity, NewDoorEntity};
 
 pub struct DoorRepositoryImpl {
     pub pool: Box<Pool<ConnectionManager<PgConnection>>>,
@@ -29,7 +27,7 @@ impl DoorEntity {
         Door {
             device_id: self.device_id.clone(),
             door_state: self.door_state,
-            door_switch_state: self.door_switch_state
+            door_switch_state: self.door_switch_state,
         }
     }
 }
@@ -79,7 +77,7 @@ impl DoorRepository for DoorRepositoryImpl {
     }
 
     fn find_by_device_id(&self, device_id: String) -> anyhow::Result<Door> {
-        use super::super::database::schema::door::{dsl, device_id};
+        use super::super::database::schema::door::{device_id, dsl};
 
         let mut conn = self.pool.get()?;
         let entity: DoorEntity = dsl::door
