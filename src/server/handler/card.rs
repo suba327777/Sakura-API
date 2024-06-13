@@ -1,4 +1,4 @@
-use actix_web::{delete, get, HttpResponse, post, Responder, web, web::Json};
+use actix_web::{delete, get, post, web, web::Json, HttpResponse, Responder};
 
 use crate::domain::object::{account::AccountId, card::CardId};
 use crate::server::connection::RequestContext;
@@ -43,7 +43,7 @@ async fn get_cards(
 async fn get_card(
     data: web::Data<RequestContext>,
     request: Json<AccountIdRequest>,
-    path_params: web::Path<(i64, )>,
+    path_params: web::Path<(i64,)>,
 ) -> impl Responder {
     let account_id = AccountId::new(request.account_id);
     let card_id = CardId::new(path_params.into_inner().0);
@@ -64,7 +64,7 @@ async fn get_card(
 async fn delete_card(
     data: web::Data<RequestContext>,
     request: Json<AccountIdRequest>,
-    path_params: web::Path<(i64, )>,
+    path_params: web::Path<(i64,)>,
 ) -> impl Responder {
     let account_id = AccountId::new(request.account_id);
     let card_id = CardId::new(path_params.into_inner().0);
