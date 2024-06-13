@@ -48,7 +48,7 @@ pub struct NewDoorEntity {
     pub door_switch_state: bool,
 }
 
-#[derive(Debug, Queryable, Identifiable, AsChangeset)]
+#[derive(Debug, Queryable, AsChangeset, Insertable)]
 #[table_name = "door"]
 pub struct DoorEntity {
     pub device_id: String,

@@ -26,8 +26,8 @@ diesel::table! {
     door (device_id) {
         #[max_length = 255]
         device_id -> Varchar,
-        door_state -> Nullable<Bool>,
-        door_switch_state -> Nullable<Bool>,
+        door_state -> Bool,
+        door_switch_state -> Bool,
     }
 }
 

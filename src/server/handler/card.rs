@@ -1,4 +1,4 @@
-use actix_web::{delete, get, HttpResponse, post, Responder, web, web::Json};
+use actix_web::{delete, get, post, web, web::Json, HttpResponse, Responder};
 
 use crate::domain::object::{account::AccountId, card::CardId};
 use crate::server::connection::RequestContext;

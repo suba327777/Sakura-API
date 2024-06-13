@@ -3,7 +3,11 @@ use crate::domain::object::mqtt::door_state::DoorState;
 use crate::domain::object::mqtt::door_switch_state::DoorSwitchState;
 use crate::domain::repository::door::DoorRepository;
 
-pub fn insert(door_repository: &impl DoorRepository, door_state: DoorState, door_switch_state: DoorSwitchState) -> anyhow::Result<()> {
+pub fn insert(
+    door_repository: &impl DoorRepository,
+    door_state: DoorState,
+    door_switch_state: DoorSwitchState,
+) -> anyhow::Result<()> {
     todo!()
 }
 
