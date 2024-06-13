@@ -5,6 +5,7 @@ use paho_mqtt::{AsyncClient, Message};
 use crate::domain::object::door::Door;
 use crate::domain::object::mqtt::door_state::DoorState;
 use crate::domain::object::mqtt::door_switch_state::DoorSwitchState;
+use crate::domain::object::mqtt::key_state::KeyState;
 use crate::domain::object::mqtt::mqtt_card::MqttCard;
 use crate::domain::repository::card::CardRepository;
 use crate::domain::repository::door::DoorRepository;
@@ -68,7 +69,13 @@ pub fn check_card(
         return;
     }
 
-    publish_key(_client, card.device_id, key_state_path);
+    let key_state = KeyState {
+        device_id: card.device_id.clone(),
+        open: !result.unwrap().door_switch_state,
+        timestamp: chrono::offset::Local::now(),
+    };
+
+    publish_key(_client, key_state_path, key_state);
 }
 
 pub fn request_door_states(
@@ -99,15 +106,8 @@ pub fn request_door_states(
     ));
 }
 
-pub fn publish_key(client: &AsyncClient, _device_id: String, key_state_path: String) {
-    let is_open = true; // TODO: データベースでチェック
-    let open_state = DoorState {
-        device_id: _device_id,
-        is_open,
-        timestamp: chrono::offset::Local::now(),
-    };
-
-    let json_str = serde_json::to_string(&open_state).unwrap();
+pub fn publish_key(client: &AsyncClient, key_state_path: String, key_state: KeyState) {
+    let json_str = serde_json::to_string(&key_state).unwrap();
 
     client.publish(Message::new(key_state_path, json_str, 0));
 }
