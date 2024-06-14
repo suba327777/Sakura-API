@@ -1,4 +1,4 @@
-use actix_web::{get, HttpResponse, post, Responder, web};
+use actix_web::{get, post, web, HttpResponse, Responder};
 
 use crate::server::connection::RequestContext;
 use crate::server::response::mqtt_card::MqttCardIdResponse;
@@ -33,4 +33,3 @@ async fn get_card(data: web::Data<RequestContext>) -> impl Responder {
         }
     }
 }
-
