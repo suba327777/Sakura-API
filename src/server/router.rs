@@ -1,5 +1,5 @@
-use actix_web::{App, HttpServer};
 use actix_web::web::Data;
+use actix_web::{App, HttpServer};
 
 use crate::server::connection::RequestContext;
 use crate::server::handler;
@@ -19,7 +19,7 @@ pub async fn run() -> std::io::Result<()> {
             .service(handler::card::get_card)
             .service(handler::card::delete_card)
     })
-        .bind("0.0.0.0:8080")?
-        .run()
-        .await
+    .bind("0.0.0.0:8080")?
+    .run()
+    .await
 }
