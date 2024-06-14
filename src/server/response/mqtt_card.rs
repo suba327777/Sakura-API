@@ -7,8 +7,6 @@ pub struct MqttCardIdResponse {
 
 impl MqttCardIdResponse {
     pub fn new(card_id: String) -> MqttCardIdResponse {
-        MqttCardIdResponse {
-            card_id,
-        }
+        MqttCardIdResponse { card_id }
     }
 }

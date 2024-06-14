@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::time::Duration;
 
 use futures::{executor::block_on, stream::StreamExt};
-use paho_mqtt::{self as mqtt, AsyncClient, Message, MQTT_VERSION_5};
+use paho_mqtt::{AsyncClient, Message, MQTT_VERSION_5, self as mqtt};
 
 use crate::domain::repository::mqtt::client::{MessageHandler, MqttClientRepository};
 use crate::server::connection::RequestContext;
@@ -15,6 +15,7 @@ impl<T> MessageListener for T where T: Fn(Message) + Send + Sync + 'static {}
 const TOPICS: &[&str] = &["test", "hello"];
 
 pub struct MqttClient {
+    #[allow(dead_code)]
     pub device_id: String,
     pub address: String,
     pub client: AsyncClient,
