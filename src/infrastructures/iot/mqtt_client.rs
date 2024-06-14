@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::time::Duration;
 
 use futures::{executor::block_on, stream::StreamExt};
-use paho_mqtt::{AsyncClient, Message, MQTT_VERSION_5, self as mqtt};
+use paho_mqtt::{self as mqtt, AsyncClient, Message, MQTT_VERSION_5};
 
 use crate::domain::repository::mqtt::client::{MessageHandler, MqttClientRepository};
 use crate::server::connection::RequestContext;
