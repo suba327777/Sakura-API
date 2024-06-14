@@ -18,6 +18,9 @@ pub async fn run() -> std::io::Result<()> {
             .service(handler::card::get_cards)
             .service(handler::card::get_card)
             .service(handler::card::delete_card)
+            .service(handler::register::register)
+            .service(handler::register::get_card)
+            .service(handler::register::is_register)
     })
     .bind("0.0.0.0:8080")?
     .run()

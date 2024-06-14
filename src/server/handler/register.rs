@@ -1,4 +1,4 @@
-use actix_web::{post, web, HttpResponse, Responder};
+use actix_web::{get, post, web, HttpResponse, Responder};
 
 use crate::server::connection::RequestContext;
 use crate::server::response::mqtt_card::MqttCardIdResponse;
@@ -14,7 +14,17 @@ async fn register(data: web::Data<RequestContext>) -> impl Responder {
     }
 }
 
-#[post("/register/card")]
+#[get("/register")]
+async fn is_register(data: web::Data<RequestContext>) -> impl Responder {
+    match usecase::register::is_register(&data.register_repository()) {
+        Ok(card_id) => HttpResponse::Ok().json(card_id),
+        Err(err) => {
+            HttpResponse::InternalServerError().json(format!("Internal Server Error {}", err))
+        }
+    }
+}
+
+#[get("/register/card")]
 async fn get_card(data: web::Data<RequestContext>) -> impl Responder {
     match usecase::register::get_card(&data.register_repository()) {
         Ok(card_id) => HttpResponse::Ok().json(MqttCardIdResponse::new(card_id)),
