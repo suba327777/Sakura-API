@@ -24,7 +24,7 @@ async fn is_register(data: web::Data<RequestContext>) -> impl Responder {
     }
 }
 
-#[post("/register/card")]
+#[get("/register/card")]
 async fn get_card(data: web::Data<RequestContext>) -> impl Responder {
     match usecase::register::get_card(&data.register_repository()) {
         Ok(card_id) => HttpResponse::Ok().json(MqttCardIdResponse::new(card_id)),
