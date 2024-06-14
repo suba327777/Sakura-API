@@ -6,6 +6,7 @@ WORKDIR /app
 RUN dpkg --add-architecture armhf
 RUN apt update && apt upgrade -y
 RUN apt install -y libpq-dev cmake libssl-dev
+RUN cargo install cargo-watch
 
 # ソースコードのコピー
 COPY . .
@@ -17,4 +18,4 @@ COPY . .
 #CMD [ "/app/target/debug/sakura-api" ]
 
 # develop
-CMD ["cargo", "run"]
+CMD ["cargo", "watch", "-x", "run"]
