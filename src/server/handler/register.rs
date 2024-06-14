@@ -1,4 +1,4 @@
-use actix_web::{get, post, web, HttpResponse, Responder};
+use actix_web::{get, HttpResponse, post, Responder, web};
 
 use crate::server::connection::RequestContext;
 use crate::server::response::mqtt_card::MqttCardIdResponse;

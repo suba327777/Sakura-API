@@ -4,7 +4,7 @@ use std::sync::RwLock;
 
 use once_cell::sync::Lazy;
 use tokio::sync::Mutex;
-use tokio::time::{sleep, Duration};
+use tokio::time::{Duration, sleep};
 
 use crate::domain::repository::register::RegisterRepository;
 
@@ -51,8 +51,7 @@ pub struct RegisterRepositoryImpl {}
 
 impl RegisterRepository for RegisterRepositoryImpl {
     fn register(&self) {
-        set_register_mode(true, 5);
-        println!("Register mode set for 5 seconds");
+        set_register_mode(true, 60);
     }
 
     fn get_card(&self) -> String {
