@@ -11,7 +11,7 @@ async fn post_account(
     request: Json<AccountRequest>,
 ) -> impl Responder {
     match usecase::account::post_account(&data.account_repository(), &request.of()) {
-        Ok(_) => HttpResponse::NoContent().finish(),
+        Ok(_) => HttpResponse::Ok().finish(),
         Err(err) => {
             HttpResponse::InternalServerError().json(format!("Internal Server Error {}", err))
         }
@@ -64,7 +64,7 @@ async fn delete_account(
 ) -> impl Responder {
     let account_id = AccountId::new(path_params.into_inner().0);
     match usecase::account::delete_account(&data.account_repository(), &account_id) {
-        Ok(_) => HttpResponse::NoContent().finish(),
+        Ok(_) => HttpResponse::Ok().finish(),
         Err(err) => {
             HttpResponse::InternalServerError().json(format!("Internal Server Error {}", err))
         }
