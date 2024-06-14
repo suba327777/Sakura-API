@@ -10,6 +10,7 @@ use crate::domain::object::mqtt::mqtt_card::MqttCard;
 use crate::domain::repository::card::CardRepository;
 use crate::domain::repository::door::DoorRepository;
 use crate::domain::repository::mqtt::client::MqttClientRepository;
+use crate::domain::repository::register::RegisterRepository;
 use crate::infrastructures::config::mqtt_config::MqttConfig;
 use crate::server::connection::RequestContext;
 use crate::server::handler::mqtt_listener::mqtt_register_listener;
@@ -42,7 +43,12 @@ pub fn check_card(
     }
 
     let card = result.unwrap();
-    let decoded_id = general_purpose::STANDARD.decode(card.id).unwrap();
+
+    if _data.register_repository().is_register_mode() {
+        _data.register_repository().add_card(card.id.clone());
+    }
+
+    let decoded_id = general_purpose::STANDARD.decode(card.id.clone()).unwrap();
 
     if !_data
         .card_repository()

@@ -15,6 +15,7 @@ impl<T> MessageListener for T where T: Fn(Message) + Send + Sync + 'static {}
 const TOPICS: &[&str] = &["test", "hello"];
 
 pub struct MqttClient {
+    #[allow(dead_code)]
     pub device_id: String,
     pub address: String,
     pub client: AsyncClient,

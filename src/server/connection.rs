@@ -7,9 +7,11 @@ use dotenv::dotenv;
 use crate::domain::repository::account::AccountRepository;
 use crate::domain::repository::card::CardRepository;
 use crate::domain::repository::door::DoorRepository;
+use crate::domain::repository::register::RegisterRepository;
 use crate::infrastructures::repository::account::AccountRepositoryImpl;
 use crate::infrastructures::repository::card::CardRepositoryImpl;
 use crate::infrastructures::repository::door::DoorRepositoryImpl;
+use crate::infrastructures::repository::register::RegisterRepositoryImpl;
 
 pub struct RequestContext {
     pool: Pool<ConnectionManager<PgConnection>>,
@@ -42,5 +44,9 @@ impl RequestContext {
         DoorRepositoryImpl {
             pool: Box::new(self.pool.to_owned()),
         }
+    }
+
+    pub fn register_repository(&self) -> impl RegisterRepository {
+        RegisterRepositoryImpl {}
     }
 }
